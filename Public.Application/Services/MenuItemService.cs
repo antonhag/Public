@@ -52,6 +52,11 @@ public class MenuItemService : IMenuItemService
 
     public async Task DeleteMenuItemAsync(int id)
     {
+        var menuItemDb = await _menuItemRepository.GetMenuItemByIdAsync(id);
+        if (menuItemDb == null)
+        {
+            throw new Exception("Menu item not found"); 
+        }
         await _menuItemRepository.DeleteMenuItemAsync(id);
     }
 }

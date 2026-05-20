@@ -49,6 +49,11 @@ public class PageService : IPageService
 
     public async Task DeletePageAsync(int id)
     {
+        var pageDb = await _pageRepository.GetPageByIdAsync(id);
+        if (pageDb == null)
+        {
+            throw new Exception("Page not found"); 
+        }
         await _pageRepository.DeletePageAsync(id);
     }
 }

@@ -57,6 +57,11 @@ public class ContentBlockService : IContentBlockService
 
     public async Task DeleteContentBlockAsync(int id)
     {
+        var contentBlockDb = await _contentBlockRepository.GetContentBlockByIdAsync(id);
+        if (contentBlockDb == null)
+        {
+            throw new Exception("Content block not found"); 
+        }
         await _contentBlockRepository.DeleteContentBlockAsync(id);
     }
 }
