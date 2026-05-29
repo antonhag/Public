@@ -13,4 +13,5 @@ public class MyDbContext : DbContext
     public DbSet<ContentBlock> ContentBlocks { get; set; } = null!;
     public DbSet<MenuItem> MenuItems { get; set; } = null!;
     public DbSet<Page> Pages { get; set; } = null!;
+    public DbSet<Visit> Visits { get; set; } = null!;
 }
