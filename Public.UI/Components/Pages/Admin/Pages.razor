@@ -1,0 +1,129 @@
+@page "/admin/pages"
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<h3>Skapa ny sida</h3>
+
+<EditForm Model="newPage" OnValidSubmit="CreatePageAsync" FormName="CreatePage">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText @bind-Value="newPage.Title" />
+    <label>
+        <InputCheckbox @bind-Value="newPage.IsPublished" /> Publicera sidan?
+    </label>
+    <button type="submit">Skapa</button>
+</EditForm>
+
+<hr />
+
+<h3>Sidor</h3>
+
+@if (pages == null)
+{
+    <p>Laddar...</p>
+}
+else if (pages.Count == 0)
+{
+    <p>Inga sidor ännu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Titel</th>
+                <th>URL</th>
+                <th>Publicerad</th>
+                <th>Skapad</th>
+                <th>Åtgärder</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in pages)
+            {
+                @if (item.Id == editingID)
+                {
+                    <tr>
+                        <td><input @bind="editPage.Title" /></td>
+                        <td>@item.Url</td>
+                        <td><input type="checkbox" @bind="editPage.IsPublished" /></td>
+                        <td>@(item.CreatedAt.ToString("yyyy-MM-dd"))</td>
+                        <td>
+                            <button type="button" @onclick="SaveEditAsync">Spara</button>
+                            <button type="button" @onclick="CancelEdit">Avbryt</button>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@item.Title</td>
+                        <td>@item.Url</td>
+                        <td>@(item.IsPublished ? "Ja" : "Nej")</td>
+                        <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <button type="button" @onclick="() => StartEdit(item)">Redigera</button>
+                            <button type="button" @onclick="() => DeletePageAsync(item.Id)">Ta bort</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private HttpClient client = default!;
+    
+    private List<PageModel>? pages;
+
+    [SupplyParameterFromForm]
+    private CreatePageModel newPage { get; set; } = new();
+
+    private int? editingID;
+    private UpdatePageModel editPage = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpClientFactory.CreateClient("Api");
+        await LoadPages();
+    }
+
+    private async Task LoadPages()
+    {
+        pages = await client.GetFromJsonAsync<List<PageModel>>("api/pages");
+    }
+
+    private async Task CreatePageAsync()
+    {
+        await client.PostAsJsonAsync("api/pages", newPage);
+        newPage = new();
+        await LoadPages();
+    }
+
+    private async Task DeletePageAsync(int id)
+    {
+        await client.DeleteAsync($"api/pages/{id}");
+        await LoadPages();
+    }
+
+    private void StartEdit(PageModel item)      
+    {                                                                                          
+        editingID = item.Id;
+        editPage.Title = item.Title;                                                           
+        editPage.IsPublished = item.IsPublished;    
+    }
+
+    private void CancelEdit()
+    {
+        editingID = null;
+    }
+
+    private async Task SaveEditAsync()
+    {
+        await client.PutAsJsonAsync($"api/pages/{editingID}", editPage);
+        editingID = null;
+        await LoadPages();
+    }
+
+}

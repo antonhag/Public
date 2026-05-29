@@ -1,6 +1,6 @@
-namespace Public.Application.DTOs;
+namespace Public.UI.Models;
 
-public class CreatePageDto
+public class UpdatePageModel
 {
     public string Title { get; set; } = null!;
     public bool IsPublished { get; set; }

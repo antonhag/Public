@@ -49,7 +49,7 @@ public class PageService : IPageService
         var page = new Page
         {
             Title = dto.Title,
-            Url = dto.Url,
+            Url = dto.Title.ToLower().Replace(" ", "-").Replace("å", "a").Replace("ä", "a").Replace("ö", "o"), // Tar sidans titel och gör den till en giltig URL.
             IsPublished = dto.IsPublished,
             CreatedAt = DateTime.UtcNow
         };
@@ -64,7 +64,7 @@ public class PageService : IPageService
             throw new Exception("Page not found");
         }
         page.Title = dto.Title;
-        page.Url = dto.Url;
+        page.Url = dto.Title.ToLower().Replace(" ", "-").Replace("å", "a").Replace("ä", "a").Replace("ö", "o");
         page.IsPublished = dto.IsPublished;
         await _pageRepository.UpdatePageAsync(page);
     }
