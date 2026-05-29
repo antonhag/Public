@@ -8,11 +8,11 @@ public class Page
 
     [Required]
     [MaxLength(200)]
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
     [Required]
     [MaxLength(300)]
-    public string Url { get; set; }
+    public string Url { get; set; } = null!;
     public bool IsPublished { get; set; }
     public DateTime CreatedAt { get; set; }
 

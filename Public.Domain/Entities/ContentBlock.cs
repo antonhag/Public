@@ -15,7 +15,7 @@ public class ContentBlock
     public int Order { get; set; }
 
     [Required]
-    public string CssStyle { get; set; }
-    
-    public Page Page { get; set; }
+    public string CssStyle { get; set; } = null!;
+
+    public Page Page { get; set; } = null!;
 }

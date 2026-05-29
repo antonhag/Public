@@ -8,9 +8,9 @@ public class MenuItem
 
     [Required]
     [MaxLength(100)]
-    public string MenuTitle { get; set; }
+    public string MenuTitle { get; set; } = null!;
     public int PageId { get; set; }
     public int Order { get; set; }
-    
-    public Page Page { get; set; }
+
+    public Page Page { get; set; } = null!;
 }
