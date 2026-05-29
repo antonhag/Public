@@ -1,3 +1,4 @@
+using Public.Application.DTOs;
 using Public.Application.Interfaces;
 using Public.Domain.Entities;
 using Public.Domain.Interfaces;
@@ -14,53 +15,102 @@ public class ContentBlockService : IContentBlockService
         _contentBlockRepository = contentBlockRepository;
         _pageRepository = pageRepository;
     }
-    
-    public async Task<List<ContentBlock>> GetContentBlocksAsync()
-    {
-        return await _contentBlockRepository.GetContentBlocksAsync();
-    }
 
-    public async Task<List<ContentBlock>> GetContentBlockByPageIdAsync(int pageId)
+    public async Task<List<ContentBlockDto>> GetContentBlocksAsync()
     {
-        return await _contentBlockRepository.GetContentBlockByPageIdAsync(pageId);
-    }
-
-    public async Task<ContentBlock> GetContentBlockByIdAsync(int id)
-    {
-        var contentBlock = await _contentBlockRepository.GetContentBlockByIdAsync(id);
-        if (contentBlock == null)
+        var blocks = await _contentBlockRepository.GetContentBlocksAsync();
+        return blocks.Select(b => new ContentBlockDto
         {
-            throw new Exception("Content block not found"); 
-        }
-        return contentBlock;                                                          
+            Id = b.Id,
+            Title = b.Title,
+            Text = b.Text,
+            Image = b.Image,
+            Link = b.Link,
+            PageId = b.PageId,
+            Order = b.Order,
+            CssStyle = b.CssStyle
+        }).ToList();
     }
 
-    public async Task CreateContentBlockAsync(ContentBlock contentBlock)
+    public async Task<List<ContentBlockDto>> GetContentBlocksByPageIdAsync(int pageId)
     {
-        var page = await _pageRepository.GetPageByIdAsync(contentBlock.PageId);
+        var blocks = await _contentBlockRepository.GetContentBlockByPageIdAsync(pageId);
+        return blocks.Select(b => new ContentBlockDto
+        {
+            Id = b.Id,
+            Title = b.Title,
+            Text = b.Text,
+            Image = b.Image,
+            Link = b.Link,
+            PageId = b.PageId,
+            Order = b.Order,
+            CssStyle = b.CssStyle
+        }).ToList();
+    }
+
+    public async Task<ContentBlockDto> GetContentBlockByIdAsync(int id)
+    {
+        var block = await _contentBlockRepository.GetContentBlockByIdAsync(id);
+        if (block == null)
+        {
+            throw new Exception("Content block not found");
+        }
+        return new ContentBlockDto
+        {
+            Id = block.Id,
+            Title = block.Title,
+            Text = block.Text,
+            Image = block.Image,
+            Link = block.Link,
+            PageId = block.PageId,
+            Order = block.Order,
+            CssStyle = block.CssStyle
+        };
+    }
+
+    public async Task CreateContentBlockAsync(CreateContentBlockDto dto)
+    {
+        var page = await _pageRepository.GetPageByIdAsync(dto.PageId);
         if (page == null)
         {
-            throw new Exception("Page not found"); 
+            throw new Exception("Page not found");
         }
-        await _contentBlockRepository.CreateContentBlockAsync(contentBlock);
+        var block = new ContentBlock
+        {
+            Title = dto.Title,
+            Text = dto.Text,
+            Image = dto.Image,
+            Link = dto.Link,
+            PageId = dto.PageId,
+            Order = dto.Order,
+            CssStyle = dto.CssStyle
+        };
+        await _contentBlockRepository.CreateContentBlockAsync(block);
     }
 
-    public async Task UpdateContentBlockAsync(ContentBlock contentBlock)
+    public async Task UpdateContentBlockAsync(int id, UpdateContentBlockDto dto)
     {
-        var contentBlockDb = await _contentBlockRepository.GetContentBlockByIdAsync(contentBlock.Id);
-        if (contentBlockDb == null)
+        var block = await _contentBlockRepository.GetContentBlockByIdAsync(id);
+        if (block == null)
         {
-            throw new Exception("Content block not found"); 
+            throw new Exception("Content block not found");
         }
-        await _contentBlockRepository.UpdateContentBlockAsync(contentBlock);
+        block.Title = dto.Title;
+        block.Text = dto.Text;
+        block.Image = dto.Image;
+        block.Link = dto.Link;
+        block.PageId = dto.PageId;
+        block.Order = dto.Order;
+        block.CssStyle = dto.CssStyle;
+        await _contentBlockRepository.UpdateContentBlockAsync(block);
     }
 
     public async Task DeleteContentBlockAsync(int id)
     {
-        var contentBlockDb = await _contentBlockRepository.GetContentBlockByIdAsync(id);
-        if (contentBlockDb == null)
+        var block = await _contentBlockRepository.GetContentBlockByIdAsync(id);
+        if (block == null)
         {
-            throw new Exception("Content block not found"); 
+            throw new Exception("Content block not found");
         }
         await _contentBlockRepository.DeleteContentBlockAsync(id);
     }

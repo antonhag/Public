@@ -1,3 +1,4 @@
+using Public.Application.DTOs;
 using Public.Application.Interfaces;
 using Public.Domain.Entities;
 using Public.Domain.Interfaces;
@@ -12,19 +13,36 @@ public class VisitService : IVisitService
     {
         _visitRepository = visitRepository;
     }
-    
-    public async Task<List<Visit>> GetVisitsAsync()
+
+    public async Task<List<VisitDto>> GetVisitsAsync()
     {
-        return await _visitRepository.GetVisitsAsync();
+        var visits = await _visitRepository.GetVisitsAsync();
+        return visits.Select(v => new VisitDto
+        {
+            Id = v.Id,
+            PageId = v.PageId,
+            VisitedAt = v.VisitedAt
+        }).ToList();
     }
 
-    public async Task<List<Visit>> GetVisitsByPageAsync(int pageId)
+    public async Task<List<VisitDto>> GetVisitsByPageAsync(int pageId)
     {
-        return await _visitRepository.GetVisitsByPageAsync(pageId);                                                         
+        var visits = await _visitRepository.GetVisitsByPageAsync(pageId);
+        return visits.Select(v => new VisitDto
+        {
+            Id = v.Id,
+            PageId = v.PageId,
+            VisitedAt = v.VisitedAt
+        }).ToList();
     }
 
-    public async Task CreateVisitAsync(Visit visit)
+    public async Task CreateVisitAsync(CreateVisitDto dto)
     {
-        await _visitRepository.CreateVisitAsync(visit);                                                         
+        var visit = new Visit
+        {
+            PageId = dto.PageId,
+            VisitedAt = DateTime.UtcNow
+        };
+        await _visitRepository.CreateVisitAsync(visit);
     }
 }

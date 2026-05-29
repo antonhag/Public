@@ -1,12 +1,12 @@
-using Public.Domain.Entities;
+using Public.Application.DTOs;
 
 namespace Public.Application.Interfaces;
 
 public interface IPageService
 {
-    Task<List<Page>> GetPagesAsync();
-    Task<Page> GetPageByIdAsync(int id);
-    Task CreatePageAsync(Page page);
-    Task UpdatePageAsync(Page page);
+    Task<List<PageDto>> GetPagesAsync();
+    Task<PageDto> GetPageByIdAsync(int id);
+    Task CreatePageAsync(CreatePageDto dto);
+    Task UpdatePageAsync(int id, UpdatePageDto dto);
     Task DeletePageAsync(int id);
 }

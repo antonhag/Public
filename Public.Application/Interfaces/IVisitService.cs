@@ -1,10 +1,10 @@
-using Public.Domain.Entities;
+using Public.Application.DTOs;
 
 namespace Public.Application.Interfaces;
 
 public interface IVisitService
 {
-    Task<List<Visit>> GetVisitsAsync();
-    Task<List<Visit>> GetVisitsByPageAsync(int pageId);
-    Task CreateVisitAsync(Visit visit);
+    Task<List<VisitDto>> GetVisitsAsync();
+    Task<List<VisitDto>> GetVisitsByPageAsync(int pageId);
+    Task CreateVisitAsync(CreateVisitDto dto);
 }

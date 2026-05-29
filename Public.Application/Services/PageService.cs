@@ -1,3 +1,4 @@
+using Public.Application.DTOs;
 using Public.Application.Interfaces;
 using Public.Domain.Entities;
 using Public.Domain.Interfaces;
@@ -10,49 +11,70 @@ public class PageService : IPageService
 
     public PageService(IPageRepository pageRepository)
     {
-        _pageRepository = pageRepository;   
-    }
-    public async Task<List<Page>> GetPagesAsync()
-    {
-        return await _pageRepository.GetPagesAsync();
+        _pageRepository = pageRepository;
     }
 
-    public async Task<Page> GetPageByIdAsync(int id)
+    public async Task<List<PageDto>> GetPagesAsync()
+    {
+        var pages = await _pageRepository.GetPagesAsync();
+        return pages.Select(p => new PageDto
+        {
+            Id = p.Id,
+            Title = p.Title,
+            Url = p.Url,
+            IsPublished = p.IsPublished,
+            CreatedAt = p.CreatedAt
+        }).ToList();
+    }
+
+    public async Task<PageDto> GetPageByIdAsync(int id)
     {
         var page = await _pageRepository.GetPageByIdAsync(id);
         if (page == null)
         {
-            throw new Exception("Page not found"); 
+            throw new Exception("Page not found");
         }
-        return page;                                                         
+        return new PageDto
+        {
+            Id = page.Id,
+            Title = page.Title,
+            Url = page.Url,
+            IsPublished = page.IsPublished,
+            CreatedAt = page.CreatedAt
+        };
     }
 
-    public async Task CreatePageAsync(Page page)
+    public async Task CreatePageAsync(CreatePageDto dto)
     {
-        var pageDb = await _pageRepository.GetPageByIdAsync(page.Id);
-        if (pageDb != null)
+        var page = new Page
         {
-            throw new Exception("Page already exists"); 
-        }
+            Title = dto.Title,
+            Url = dto.Url,
+            IsPublished = dto.IsPublished,
+            CreatedAt = DateTime.UtcNow
+        };
         await _pageRepository.CreatePageAsync(page);
     }
 
-    public async Task UpdatePageAsync(Page page)
+    public async Task UpdatePageAsync(int id, UpdatePageDto dto)
     {
-        var pageDb = await _pageRepository.GetPageByIdAsync(page.Id);
-        if (pageDb == null)
+        var page = await _pageRepository.GetPageByIdAsync(id);
+        if (page == null)
         {
-            throw new Exception("Page not found"); 
+            throw new Exception("Page not found");
         }
+        page.Title = dto.Title;
+        page.Url = dto.Url;
+        page.IsPublished = dto.IsPublished;
         await _pageRepository.UpdatePageAsync(page);
     }
 
     public async Task DeletePageAsync(int id)
     {
-        var pageDb = await _pageRepository.GetPageByIdAsync(id);
-        if (pageDb == null)
+        var page = await _pageRepository.GetPageByIdAsync(id);
+        if (page == null)
         {
-            throw new Exception("Page not found"); 
+            throw new Exception("Page not found");
         }
         await _pageRepository.DeletePageAsync(id);
     }
