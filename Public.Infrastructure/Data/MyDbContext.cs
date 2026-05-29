@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Public.Domain.Entities;
 
 namespace Public.Infrastructure.Data;
 
-public class MyDbContext : DbContext
+public class MyDbContext : IdentityDbContext<AppUser>
 {
     public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
     {
