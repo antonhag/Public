@@ -12,6 +12,8 @@ public class ContentBlock
     public string? Image { get; set; }
     public string? Link { get; set; }
     public int PageId { get; set; }
+    [Required] 
+    public string Section { get; set; } = "main";
     public int Order { get; set; }
 
     [Required]

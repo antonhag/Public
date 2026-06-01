@@ -27,6 +27,7 @@ public class ContentBlockService : IContentBlockService
             Image = b.Image,
             Link = b.Link,
             PageId = b.PageId,
+            Section = b.Section,
             Order = b.Order,
             CssStyle = b.CssStyle
         }).ToList();
@@ -43,6 +44,7 @@ public class ContentBlockService : IContentBlockService
             Image = b.Image,
             Link = b.Link,
             PageId = b.PageId,
+            Section = b.Section,
             Order = b.Order,
             CssStyle = b.CssStyle
         }).ToList();
@@ -63,6 +65,7 @@ public class ContentBlockService : IContentBlockService
             Image = block.Image,
             Link = block.Link,
             PageId = block.PageId,
+            Section = block.Section,
             Order = block.Order,
             CssStyle = block.CssStyle
         };
@@ -82,6 +85,7 @@ public class ContentBlockService : IContentBlockService
             Image = dto.Image,
             Link = dto.Link,
             PageId = dto.PageId,
+            Section = dto.Section,
             Order = dto.Order,
             CssStyle = dto.CssStyle
         };
@@ -100,6 +104,7 @@ public class ContentBlockService : IContentBlockService
         block.Image = dto.Image;
         block.Link = dto.Link;
         block.PageId = dto.PageId;
+        block.Section = dto.Section;
         block.Order = dto.Order;
         block.CssStyle = dto.CssStyle;
         await _contentBlockRepository.UpdateContentBlockAsync(block);
