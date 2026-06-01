@@ -1,0 +1,49 @@
+@page "/admin/visits"
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<h3>Statistik</h3>
+
+@if (visits == null)
+{
+    <p>Laddar...</p>
+}
+else if (visits.Count == 0)
+{
+    <p>Inga besök ännu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Sida</th>
+                <th>Antal besök</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var group in visits.GroupBy(v => v.PageId))
+            {
+                <tr>
+                    <td>@(pages?.FirstOrDefault(p => p.Id == group.Key)?.Title)</td>
+                    <td>@group.Count()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private HttpClient client = default!;
+    
+    private List<VisitModel>? visits;
+    private List<PageModel>? pages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpClientFactory.CreateClient("Api");
+        visits = await client.GetFromJsonAsync<List<VisitModel>>("api/visits");
+        pages = await client.GetFromJsonAsync<List<PageModel>>("api/pages");
+    }
+
+}

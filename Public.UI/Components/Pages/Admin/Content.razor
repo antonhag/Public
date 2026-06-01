@@ -68,7 +68,7 @@ else
     <table class="table">
         <thead>
         <tr>
-            <th>Sid-Id</th>
+            <th>Sida</th>
             <th>Rubrik</th>
             <th>Text</th>
             <th>Bild</th>
@@ -108,7 +108,7 @@ else
             else
             {
                 <tr>
-                    <td>@content.PageId</td>
+                    <td>@(pages?.FirstOrDefault(p => p.Id == content.PageId)?.Title)</td>  
                     <td>@content.Title</td>
                     <td>@content.Text</td>
                     <td>@content.Image</td>

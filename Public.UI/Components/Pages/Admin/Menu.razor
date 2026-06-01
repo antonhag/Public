@@ -1,0 +1,153 @@
+@page "/admin/menu"
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<h3>Hantera meny</h3>
+
+<EditForm Model="newMenuItem" OnValidSubmit="CreateMenuItemAsync" FormName="MenuForm"> 
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label>Välj sida</label>
+    <br>
+    <InputSelect @bind-Value="newMenuItem.PageId">
+        <option value="0">-- Välj sida --</option>
+        @if (pages != null)
+        {
+            @foreach (var p in pages)
+            {
+                <option value="@p.Id">@p.Title</option>
+            }
+        }
+    </InputSelect>
+    <br>    
+    <label>Titel</label>
+    <br>
+    <InputText @bind-Value="newMenuItem.MenuTitle"></InputText>
+    <br>  
+    <label>Meny-ordning</label>
+    <br>
+    <InputNumber @bind-Value="newMenuItem.Order"></InputNumber>
+    <br>    
+    
+    <button type="submit">Skapa</button>
+</EditForm>
+
+@if (menuItems == null)
+{
+    <p>Laddar...</p>
+}
+else if (menuItems.Count == 0)
+{
+    <p>Inget innehåll ännu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Sida</th>
+            <th>Titel</th>
+            <th>Ordning</th>
+            <th>Åtgärder</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var menu in menuItems)
+        {
+            @if (menu.Id == editingId)
+            {
+                <tr>
+                    <td>
+                        <select @bind="editMenuItem.PageId">
+                            @if (pages != null)
+                            {
+                                @foreach (var p in pages)
+                                {
+                                    <option value="@p.Id">@p.Title</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td><input @bind="editMenuItem.MenuTitle"/></td>
+                    <td><input @bind="editMenuItem.Order"/></td>
+                    <td>
+                        <button type="button" @onclick="SaveEditAsync">Spara</button>
+                        <button type="button" @onclick="CancelEdit">Avbryt</button>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>@(pages?.FirstOrDefault(p => p.Id == menu.PageId)?.Title)</td>  
+                    <td>@menu.MenuTitle</td>
+                    <td>@menu.Order</td>
+                    <td>
+                        <button type="button" @onclick="() => StartEdit(menu)">Redigera</button>
+                        <button type="button" @onclick="() => DeleteMenuItemAsync(menu.Id)">Ta bort</button>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private HttpClient client = default!;
+
+    private List<MenuItemModel> menuItems;
+    private List<PageModel>? pages;
+    
+    [SupplyParameterFromForm]
+    private CreateMenuItemModel? newMenuItem { get; set; } = new();
+
+    private int? editingId;
+    private UpdateMenuItemModel editMenuItem = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpClientFactory.CreateClient("Api");
+        await LoadMenuItemAsync();
+        pages = await client.GetFromJsonAsync<List<PageModel>>("api/pages");
+    }
+
+
+    private async Task LoadMenuItemAsync()
+    {
+        menuItems = await client.GetFromJsonAsync<List<MenuItemModel>>("api/menuitems");
+    }
+
+    private async Task CreateMenuItemAsync()
+    {
+        await client.PostAsJsonAsync("api/menuitems", newMenuItem);
+        newMenuItem = new CreateMenuItemModel(); // Nollställer formuläret med ett nytt tomt objekt
+        await LoadMenuItemAsync();
+    }
+
+    private async Task DeleteMenuItemAsync(int id)
+    {
+        await client.DeleteAsync($"api/menuitems/{id}");
+        await LoadMenuItemAsync();
+    }
+    
+    private void StartEdit(MenuItemModel menuItem)      
+    {                                                                                          
+        editingId = menuItem.Id;
+        editMenuItem.PageId = menuItem.PageId;
+        editMenuItem.MenuTitle = menuItem.MenuTitle;
+        editMenuItem.Order = menuItem.Order;
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+    }
+
+    private async Task SaveEditAsync()
+    {
+        await client.PutAsJsonAsync($"api/menuitems/{editingId}", editMenuItem);
+        editingId = null;
+        await LoadMenuItemAsync();
+    }
+}
