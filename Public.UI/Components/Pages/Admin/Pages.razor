@@ -7,10 +7,14 @@
 <EditForm Model="newPage" OnValidSubmit="CreatePageAsync" FormName="CreatePage">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    <label>Sidans titel</label>
+    <br>
     <InputText @bind-Value="newPage.Title" />
+    <br>
     <label>
         <InputCheckbox @bind-Value="newPage.IsPublished" /> Publicera sidan?
     </label>
+    <br>
     <button type="submit">Skapa</button>
 </EditForm>
 
@@ -41,7 +45,7 @@ else
         <tbody>
             @foreach (var item in pages)
             {
-                @if (item.Id == editingID)
+                @if (item.Id == editingId)
                 {
                     <tr>
                         <td><input @bind="editPage.Title" /></td>
@@ -80,16 +84,16 @@ else
     [SupplyParameterFromForm]
     private CreatePageModel newPage { get; set; } = new();
 
-    private int? editingID;
+    private int? editingId;
     private UpdatePageModel editPage = new();
 
     protected override async Task OnInitializedAsync()
     {
         client = HttpClientFactory.CreateClient("Api");
-        await LoadPages();
+        await LoadPagesAsync();
     }
 
-    private async Task LoadPages()
+    private async Task LoadPagesAsync()
     {
         pages = await client.GetFromJsonAsync<List<PageModel>>("api/pages");
     }
@@ -98,32 +102,32 @@ else
     {
         await client.PostAsJsonAsync("api/pages", newPage);
         newPage = new();
-        await LoadPages();
+        await LoadPagesAsync();
     }
 
     private async Task DeletePageAsync(int id)
     {
         await client.DeleteAsync($"api/pages/{id}");
-        await LoadPages();
+        await LoadPagesAsync();
     }
 
     private void StartEdit(PageModel item)      
     {                                                                                          
-        editingID = item.Id;
+        editingId = item.Id;
         editPage.Title = item.Title;                                                           
         editPage.IsPublished = item.IsPublished;    
     }
 
     private void CancelEdit()
     {
-        editingID = null;
+        editingId = null;
     }
 
     private async Task SaveEditAsync()
     {
-        await client.PutAsJsonAsync($"api/pages/{editingID}", editPage);
-        editingID = null;
-        await LoadPages();
+        await client.PutAsJsonAsync($"api/pages/{editingId}", editPage);
+        editingId = null;
+        await LoadPagesAsync();
     }
 
 }

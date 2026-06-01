@@ -1,0 +1,213 @@
+@page "/admin/content"
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<h3>Skapa innehåll</h3>
+
+<EditForm Model="newContent" OnValidSubmit="CreateContentAsync" FormName="CreateContent">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label>Välj sida</label>
+    <br>
+    <InputSelect @bind-Value="newContent.PageId">
+        <option value="0">-- Välj sida --</option>
+        @if (pages != null)
+        {
+            @foreach (var p in pages)
+            {
+                <option value="@p.Id">@p.Title</option>
+            }
+        }
+    </InputSelect>
+    <br>
+    <label>Rubrik</label>
+    <br>
+    <InputText @bind-Value="newContent.Title" />
+    <br>
+    <label>Text</label>
+    <br>
+    <InputTextArea @bind-Value="newContent.Text"/>
+    <br>
+    <label>Bild</label>
+    <br>
+    <InputFile OnChange="OnFileSelected"/>
+    <br>
+    <label>Länk</label>
+    <br>
+    <InputText @bind-Value="newContent.Link"/>
+    <br>
+    <label>Sektion</label>
+    <br>
+    <InputSelect @bind-Value="newContent.Section">
+        <option value="main">Main</option>
+        <option value="sidebar">Sidebar</option>
+        <option value="footer">Footer</option>
+    </InputSelect>
+    <br>
+    <label>Ordning</label>
+    <br>
+    <InputNumber @bind-Value="newContent.Order"></InputNumber>
+    <br>
+    <label>CSS-stil</label>
+    <br>
+    <InputText @bind-Value="newContent.CssStyle"></InputText>
+    
+    <button type="submit">Skapa</button>
+</EditForm>
+
+@if (contentBlocks == null)
+{
+    <p>Laddar...</p>
+}
+else if (contentBlocks.Count == 0)
+{
+    <p>Inget innehåll ännu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Sid-Id</th>
+            <th>Rubrik</th>
+            <th>Text</th>
+            <th>Bild</th>
+            <th>Länk</th>
+            <th>Sektion</th>
+            <th>Ordning</th>
+            <th>CSS-stil</th>
+            <th>Åtgärder</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var content in contentBlocks)
+        {
+            @if (content.Id == editingId)
+            {
+                <tr>
+                    <td><input @bind="editContent.PageId" /></td>
+                    <td><input @bind="editContent.Title"/></td>
+                    <td><input @bind="editContent.Text"/></td>
+                    <td><InputFile OnChange="OnEditFileSelected" /></td>
+                    <td><input @bind="editContent.Link"/></td>
+                    <td>                                        
+                        <select @bind="editContent.Section">                                                   
+                            <option value="main">Main</option>                                                 
+                            <option value="sidebar">Sidebar</option>                                           
+                            <option value="footer">Footer</option>                                             
+                        </select>                                                                              
+                    </td>  
+                    <td><input type="number" @bind="editContent.Order" /></td>
+                    <td><input @bind="editContent.CssStyle" /></td>
+                    <td>
+                        <button type="button" @onclick="SaveEditAsync">Spara</button>
+                        <button type="button" @onclick="CancelEdit">Avbryt</button>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>@content.PageId</td>
+                    <td>@content.Title</td>
+                    <td>@content.Text</td>
+                    <td>@content.Image</td>
+                    <td>@content.Link</td>
+                    <td>@content.Section</td>
+                    <td>@content.Order</td>
+                    <td>@content.CssStyle</td>
+                    <td>
+                        <button type="button" @onclick="() => StartEdit(content)">Redigera</button>
+                        <button type="button" @onclick="() => DeleteContentAsync(content.Id)">Ta bort</button>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private HttpClient client = default!;
+
+
+    private List<ContentBlockModel>? contentBlocks;
+    private List<PageModel>? pages;
+
+    [SupplyParameterFromForm] 
+    private CreateContentBlockModel? newContent { get; set; } = new();
+
+    private int? editingId;
+    private UpdateContentBlockModel editContent = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpClientFactory.CreateClient("Api");
+        await LoadContentAsync();
+        pages = await client.GetFromJsonAsync<List<PageModel>>("api/pages");
+    }
+    
+    private async Task LoadContentAsync()
+    {
+        contentBlocks = await client.GetFromJsonAsync<List<ContentBlockModel>>("api/contentblocks");
+    }
+
+    private async Task CreateContentAsync()
+    {
+        await client.PostAsJsonAsync("api/contentblocks", newContent);
+        newContent = new CreateContentBlockModel();
+        await LoadContentAsync();
+    }
+    
+    private async Task DeleteContentAsync(int id)
+    {
+        await client.DeleteAsync($"api/contentblocks/{id}");
+        await LoadContentAsync();
+    }
+    
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File; // Hämtar filen användaren valde
+        var content = new MultipartFormDataContent(); // Skapar ett "paket" för att skicka filen via HTTP
+        content.Add(new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)), "file", file.Name); // Lägger filen i paketet
+
+        var response = await client.PostAsync("api/upload", content); // Skickar paketet till upload-endpointen
+        newContent.Image = await response.Content.ReadAsStringAsync(); // Läser sökvägen som API:t returnerar och sparar den i modellen
+    }
+
+    private async Task OnEditFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)), "file", file.Name);
+
+        var response = await client.PostAsync("api/upload", content);
+        editContent.Image = await response.Content.ReadAsStringAsync();
+    }     
+    
+    private void StartEdit(ContentBlockModel content)      
+    {                                                                                          
+        editingId = content.Id;
+        editContent.PageId = content.PageId;
+        editContent.Title = content.Title;
+        editContent.Text = content.Text;
+        editContent.Image = content.Image;
+        editContent.Link = content.Link;
+        editContent.Section = content.Section;
+        editContent.Order = content.Order;
+        editContent.CssStyle = content.CssStyle;
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+    }
+
+    private async Task SaveEditAsync()
+    {
+        await client.PutAsJsonAsync($"api/contentblocks/{editingId}", editContent);
+        editingId = null;
+        await LoadContentAsync();
+    }
+
+}

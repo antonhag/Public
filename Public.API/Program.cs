@@ -26,7 +26,12 @@ builder.Services.AddScoped<IContentBlockService, ContentBlockService>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
 
+
+
 var app = builder.Build();
+
+// Så att filerna kan nås via URL, bilderna tex
+app.UseStaticFiles();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())                                                       
