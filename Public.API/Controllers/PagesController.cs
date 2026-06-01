@@ -26,6 +26,12 @@ public class PagesController : ControllerBase
     {
         return await _pageService.GetPageByIdAsync(id);
     }
+    
+    [HttpGet("url/{url}")]
+    public async Task<PageDto?> GetByUrl(string url)
+    {
+        return await _pageService.GetPageByUrlAsync(url);
+    }
 
     [HttpPost]
     public async Task Post(CreatePageDto dto)

@@ -24,6 +24,11 @@ public class PageRepository : IPageRepository
         return await _context.Pages.FindAsync(id);
     }
 
+    public async Task<Page?> GetPageByUrlAsync(string url)
+    {
+        return await _context.Pages.FirstOrDefaultAsync(p => p.Url == url);                                                         
+    }
+
     public async Task CreatePageAsync(Page page)
     {
         await _context.Pages.AddAsync(page);

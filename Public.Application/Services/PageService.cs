@@ -44,6 +44,22 @@ public class PageService : IPageService
         };
     }
 
+    public async Task<PageDto?> GetPageByUrlAsync(string url)
+    {
+        var page = await _pageRepository.GetPageByUrlAsync(url);
+        if (page == null)                                                                      
+            return null;    
+
+        return new PageDto
+        {
+            Id = page.Id,
+            Title = page.Title,
+            Url = page.Url,
+            IsPublished = page.IsPublished,
+            CreatedAt = page.CreatedAt
+        };
+    }
+
     public async Task CreatePageAsync(CreatePageDto dto)
     {
         var page = new Page

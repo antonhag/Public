@@ -1,0 +1,28 @@
+
+@foreach (var block in Blocks.OrderBy(b => b.Order))
+{
+    <div style="@block.CssStyle">
+        @if (!string.IsNullOrEmpty(block.Title))                                                   
+        {                                                                                          
+            <h2>@block.Title</h2>                                                                  
+        }                                                                                          
+        @if (!string.IsNullOrEmpty(block.Text))
+        {                                                                                          
+            <p>@block.Text</p>                          
+        }                                                                                        
+        @if (!string.IsNullOrEmpty(block.Image))                                                   
+        {
+            <img src="@block.Image" alt="@block.Title" />                                          
+        }                                               
+        @if (!string.IsNullOrEmpty(block.Link))                                                  
+        {                                           
+            <a href="@block.Link">@block.Link</a>
+        }
+    </div>
+}
+
+@code {
+
+    [Parameter] 
+    public List<ContentBlockModel> Blocks { get; set; } = new();
+}
