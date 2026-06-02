@@ -1,5 +1,6 @@
 @page "/admin/pages"
-@attribute [Authorize(Roles = "Admin")] 
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveServer
 

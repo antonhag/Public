@@ -19,12 +19,14 @@ public class MenuItemService : IMenuItemService
     public async Task<List<MenuItemDto>> GetMenuItemsAsync()
     {
         var items = await _menuItemRepository.GetMenuItemsAsync();
+        var pages = await _pageRepository.GetPagesAsync();
         return items.Select(m => new MenuItemDto
         {
             Id = m.Id,
             MenuTitle = m.MenuTitle,
             PageId = m.PageId,
-            Order = m.Order
+            Order = m.Order,
+            Url = pages.FirstOrDefault(p => p.Id == m.PageId)?.Url
         }).ToList();
     }
 
@@ -35,12 +37,14 @@ public class MenuItemService : IMenuItemService
         {
             throw new Exception("Menu item not found");
         }
+        var page = await _pageRepository.GetPageByIdAsync(item.PageId);
         return new MenuItemDto
         {
             Id = item.Id,
             MenuTitle = item.MenuTitle,
             PageId = item.PageId,
-            Order = item.Order
+            Order = item.Order,
+            Url = page?.Url
         };
     }
 

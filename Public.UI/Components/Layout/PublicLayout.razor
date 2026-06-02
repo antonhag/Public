@@ -1,0 +1,59 @@
+@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+
+<header class="bg-dark text-white py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand text-white text-decoration-none h4 m-0" href="/">Public</a>
+  
+        <div>
+            <AuthorizeView>
+                <Authorized>
+                    <span class="me-3">Hej, @context.User.Identity?.Name!</span>
+                    <form action="Account/Logout" method="post" class="d-inline">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="" />
+                        <button type="submit" class="btn btn-outline-light btn-sm">Logga
+                            ut</button>
+                    </form>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="btn btn-outline-light btn-sm" href="Account/Login">Logga
+                        in</a>
+                </NotAuthorized>
+            </AuthorizeView> 
+        </div>
+    </div>
+</header>
+
+<nav class="bg-light border-bottom">
+    <div class="container">
+        <ul class="nav">
+            @if (menuItems != null)
+            {
+                @foreach (var item in menuItems)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="/@item.Url">@item.MenuTitle</a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</nav>
+  
+<main class="container py-4">
+    @Body
+</main>   
+
+@code {
+    private List<MenuItemModel>? menuItems;
+
+    [Inject] IHttpClientFactory HttpFactory { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = HttpFactory.CreateClient("Api");
+        menuItems = await client.GetFromJsonAsync<List<MenuItemModel>>("api/menuitems");
+    }
+}
+

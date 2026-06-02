@@ -1,19 +1,9 @@
 @page "/"
 @page "/{url}"
+@layout PublicLayout
 @inject IHttpClientFactory HttpClientFactory
 @* Prerendering avstängd för att undvika dubbel besöksregistrering *@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-
-<nav>                                                                                    
-    @if (menuItems != null)                                                                
-    {                                                                                      
-        @foreach (var item in menuItems.OrderBy(m => m.Order))                             
-        {                                   
-            <a href="/@(pages?.FirstOrDefault(p => p.Id ==                                 
-                                                   item.PageId)?.Url)">@item.MenuTitle</a>         
-        }                                                                                  
-    }                                       
-</nav>     
 
 @if (contentBlocks == null)                                                              
 {                                                                                          
@@ -38,7 +28,6 @@ else
 
     private HttpClient client = default!;
 
-    private List<MenuItemModel>? menuItems;
     private List<ContentBlockModel>? contentBlocks;
     private List<PageModel>? pages;
     private PageModel? currentPage;
@@ -52,7 +41,6 @@ else
     {
         client = HttpClientFactory.CreateClient("Api");
         pages = await client.GetFromJsonAsync<List<PageModel>>("api/pages");
-        menuItems = await client.GetFromJsonAsync<List<MenuItemModel>>("api/menuitems"); // Hämta menyn
 
         // Ingen URL, hämtar alla sidor, ta första som startsida
         if (string.IsNullOrEmpty(Url))
