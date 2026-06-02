@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Authorization
 
 <div class="page">
     <div class="sidebar">
@@ -7,9 +8,22 @@
 
     <main>
         <div class="top-row px-4">
+            <AuthorizeView Context="authContext">
+                <Authorized>
+                    <span>Hej, @authContext.User.Identity?.Name!</span>
+                    <form action="Account/Logout" method="post" style="display:inline">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="" />
+                        <button type="submit" class="btn btn-link">Logga ut</button>
+                    </form>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="Account/Login">Logga in</a>
+                </NotAuthorized>
+            </AuthorizeView>
+  
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
-
         <article class="content px-4">
             @Body
         </article>

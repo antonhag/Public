@@ -6,3 +6,5 @@ riderModule.iml
 trello.json
 .idea/
 Public.API/wwwroot/uploads/
+appsettings.json
+appsettings.*.json
