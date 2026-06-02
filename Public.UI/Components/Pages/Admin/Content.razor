@@ -1,5 +1,5 @@
 @page "/admin/content"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Editor")]
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveServer
 

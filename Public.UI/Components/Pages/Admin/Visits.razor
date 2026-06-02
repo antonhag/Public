@@ -1,5 +1,5 @@
 @page "/admin/visits"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")] 
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveServer
 

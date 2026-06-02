@@ -1,0 +1,88 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject UserManager<AppUser> UserMgr
+@inject RoleManager<IdentityRole> RoleMgr
+@rendermode InteractiveServer
+
+<h3>Användarhantering</h3>
+  
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Email</th>
+        @foreach (var role in roles)
+        {
+            <th>@role.Name</th>
+        }
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in users)
+    {
+        <tr>
+            <td>@user.Email</td>
+            @foreach (var role in roles)
+            {
+                <td>
+                    @* Checkbox för rollen (kolumnen).
+                       - checked: ifylld om denna user har rollen
+                       - @onchange: när checkboxen klickas, anropa ToggleRole
+                       - role.Name! = vilken roll (kolumnen, t.ex. "Editor")
+                       - (bool)e.Value! = checkboxens nya tillstånd (true=just ikryssad, false=just urkryssad) *@
+                    <input type="checkbox"
+                           checked="@userRoles[user.Id].Contains(role.Name!)"
+                           @onchange="e => ToggleRole(user, role.Name!, (bool)e.Value!)" />
+                </td>
+            }   
+            <td>
+                <button class="btn btn-danger btn-sm"
+                        @onclick="() => DeleteUser(user)"
+                        disabled="@(user.Email == "admin@test.se")"> @* Admin kan inte raderas *@
+                    Ta bort
+                </button>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    List<AppUser> users = new();  
+    List<IdentityRole> roles = new();
+    
+    // Håller en key (user.id) och en lista av roller (en user kan ha flera roller, två i detta fall)
+    Dictionary<string, List<string>> userRoles = new(); 
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData() 
+    {
+        users = await UserMgr.Users.ToListAsync(); // hämtar alla users för att sedan lista dom i HTML-koden
+        roles = await RoleMgr.Roles.ToListAsync(); // hämtar alla roller för att visa dem i tabell headern för HTML-koden
+        userRoles.Clear(); // Rensar gammal data och hämtar uppdaterad info om alla användare och deras roller
+        foreach (var u in users) 
+            userRoles[u.Id] = (await UserMgr.GetRolesAsync(u)).ToList();
+    }
+  
+    // Här sätter vi värdet vi skickar från HTML koden, om add = true, får den medskickade usern den rollen som skickats med
+    // om add = false tar vi bort rollen från usern istället
+    async Task ToggleRole(AppUser user, string role, bool add)
+    {
+        if (add)    
+            await UserMgr.AddToRoleAsync(user, role);
+        else
+            await UserMgr.RemoveFromRoleAsync(user, role);
+        await LoadData(); // hämtar uppdaterad data så att UI synkar med DB
+    }
+    
+    async Task DeleteUser(AppUser user)
+    {
+        await UserMgr.DeleteAsync(user);
+        await LoadData();
+    }
+}

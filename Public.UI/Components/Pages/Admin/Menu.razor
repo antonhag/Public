@@ -1,5 +1,5 @@
 @page "/admin/menu"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")] 
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveServer
 
