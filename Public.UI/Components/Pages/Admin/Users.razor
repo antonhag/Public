@@ -3,8 +3,8 @@
 @attribute [Authorize(Roles = "Admin")]
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-@inject UserManager<AppUser> UserMgr
-@inject RoleManager<IdentityRole> RoleMgr
+@inject UserManager<AppUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
 @rendermode InteractiveServer
 
 <h3>Användarhantering</h3>
@@ -63,11 +63,11 @@
 
     async Task LoadData() 
     {
-        users = await UserMgr.Users.ToListAsync(); // hämtar alla users för att sedan lista dom i HTML-koden
-        roles = await RoleMgr.Roles.ToListAsync(); // hämtar alla roller för att visa dem i tabell headern för HTML-koden
+        users = await UserManager.Users.ToListAsync(); // hämtar alla users för att sedan lista dom i HTML-koden
+        roles = await RoleManager.Roles.ToListAsync(); // hämtar alla roller för att visa dem i tabell headern för HTML-koden
         userRoles.Clear(); // Rensar gammal data och hämtar uppdaterad info om alla användare och deras roller
         foreach (var u in users) 
-            userRoles[u.Id] = (await UserMgr.GetRolesAsync(u)).ToList();
+            userRoles[u.Id] = (await UserManager.GetRolesAsync(u)).ToList();
     }
   
     // Här sätter vi värdet vi skickar från HTML koden, om add = true, får den medskickade usern den rollen som skickats med
@@ -75,15 +75,15 @@
     async Task ToggleRole(AppUser user, string role, bool add)
     {
         if (add)    
-            await UserMgr.AddToRoleAsync(user, role);
+            await UserManager.AddToRoleAsync(user, role);
         else
-            await UserMgr.RemoveFromRoleAsync(user, role);
+            await UserManager.RemoveFromRoleAsync(user, role);
         await LoadData(); // hämtar uppdaterad data så att UI synkar med DB
     }
     
     async Task DeleteUser(AppUser user)
     {
-        await UserMgr.DeleteAsync(user);
+        await UserManager.DeleteAsync(user);
         await LoadData();
     }
 }

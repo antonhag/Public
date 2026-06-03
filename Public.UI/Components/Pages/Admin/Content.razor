@@ -41,6 +41,7 @@
     <label>Sektion</label>
     <br>
     <InputSelect @bind-Value="newContent.Section">
+        <option value="hero">Hero</option>
         <option value="main">Main</option>
         <option value="sidebar">Sidebar</option>
         <option value="footer">Footer</option>
@@ -93,7 +94,8 @@ else
                     <td><InputFile OnChange="OnEditFileSelected" /></td>
                     <td><input @bind="editContent.Link"/></td>
                     <td>                                        
-                        <select @bind="editContent.Section">                                                   
+                        <select @bind="editContent.Section">     
+                            <option value="hero">Hero</option>
                             <option value="main">Main</option>                                                 
                             <option value="sidebar">Sidebar</option>                                           
                             <option value="footer">Footer</option>                                             
@@ -135,8 +137,8 @@ else
 
     private List<ContentBlockModel>? contentBlocks;
     private List<PageModel>? pages;
-
-    [SupplyParameterFromForm] 
+    
+    [SupplyParameterFromForm]
     private CreateContentBlockModel? newContent { get; set; } = new();
 
     private int? editingId;
@@ -156,10 +158,23 @@ else
 
     private async Task CreateContentAsync()
     {
-        await client.PostAsJsonAsync("api/contentblocks", newContent);
+        Console.WriteLine(">>> CreateContentAsync STARTADE");
+        Console.WriteLine($">>> Title: {newContent?.Title}, PageId:{newContent?.PageId}, Section: {newContent?.Section}");
+
+        var response = await
+            client.PostAsJsonAsync("api/contentblocks", newContent);
+        Console.WriteLine($">>> POST Status: {response.StatusCode}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($">>> Error body: {error}");
+        }
+
         newContent = new CreateContentBlockModel();
         await LoadContentAsync();
     }
+
+
     
     private async Task DeleteContentAsync(int id)
     {

@@ -10,16 +10,48 @@
     <p>Laddar...</p>                                                                       
 }                                                                                          
 else                                                                                       
-{                                                                                          
-    <div class="main-content">
-        <ContentSection Blocks="mainBlocks" />
+{    
+    @* Hero visas bara om det finns innehåll *@
+    @if (heroBlocks.Any())
+    {
+        @* Hämtar första hero-blocket för den sidan, brukar bara ha en hero. *@
+        var hero = heroBlocks.First();
+        var heroImageUrl = $"http://localhost:5189{hero.Image}";
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="p-5 rounded-3 text-white"
+                     style="background-image: url('@heroImageUrl');
+                          background-size: cover;
+                          background-position: center;
+                          min-height: 300px;">
+                    <h1 class="display-4 text-white">@hero.Title</h1>
+                    @if (!string.IsNullOrEmpty(hero.Text))
+                    {
+                        <p class="lead">@hero.Text</p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    
+    <div class="row"> @* Visar alltid main och sidebar *@
+        <div class="col-md-8">
+            <ContentSection Blocks="mainBlocks" Section="main" />
+        </div>
+        <div class="col-md-4">
+            <ContentSection Blocks="sidebarBlocks" Section="sidebar" />
+        </div>
     </div>
-    <div class="sidebar-content">
-        <ContentSection Blocks="sidebarBlocks" />
-    </div>
-    <div class="footer-content">
-        <ContentSection Blocks="footerBlocks" />   
-    </div>                        
+  
+    @* Footer visas bara om det finns innehåll *@
+    @if (footerBlocks.Any())
+    {
+        <div class="row mt-4 pt-3 border-top">
+            <div class="col-12">
+                <ContentSection Blocks="footerBlocks" Section="footer" />
+            </div>
+        </div>
+    }                       
 }
 
 @code {
@@ -33,6 +65,7 @@ else
     private PageModel? currentPage;
     
     // Filtrerar contentBlocks per sektion. Returnerar tom lista om contentBlocks är null.
+    private List<ContentBlockModel> heroBlocks => contentBlocks?.Where(b => b.Section == "hero").ToList() ?? new();
     private List<ContentBlockModel> mainBlocks => contentBlocks?.Where(b => b.Section == "main").ToList() ?? new();
     private List<ContentBlockModel> sidebarBlocks => contentBlocks?.Where(b => b.Section == "sidebar").ToList() ?? new();
     private List<ContentBlockModel> footerBlocks => contentBlocks?.Where(b => b.Section == "footer").ToList() ?? new();

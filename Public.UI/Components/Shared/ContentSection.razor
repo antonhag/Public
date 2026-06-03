@@ -1,22 +1,35 @@
 
 @foreach (var block in Blocks.OrderBy(b => b.Order))
 {
-    <div style="@block.CssStyle">
-        @if (!string.IsNullOrEmpty(block.Title))                                                   
-        {                                                                                          
-            <h2>@block.Title</h2>                                                                  
-        }                                                                                          
-        @if (!string.IsNullOrEmpty(block.Text))
-        {                                                                                          
-            <p>@block.Text</p>                          
-        }                                                                                        
-        @if (!string.IsNullOrEmpty(block.Image))                                                   
+    <div class="content-block mb-4" style="@block.CssStyle">
+        @if (!string.IsNullOrEmpty(block.Title))
         {
-            <img src="@block.Image" alt="@block.Title" />                                          
-        }                                               
-        @if (!string.IsNullOrEmpty(block.Link))                                                  
-        {                                           
-            <a href="@block.Link">@block.Link</a>
+            @if (Section == "sidebar")
+            {
+                <h4>@block.Title</h4>
+            }
+            else if (Section == "footer")
+            {
+                <h5>@block.Title</h5>
+            }
+            else // för mainBlocks
+            {
+                <h2>@block.Title</h2>
+            }
+        }
+        @if (!string.IsNullOrEmpty(block.Text))
+        {
+            <p>@block.Text</p>
+        }
+        @if (!string.IsNullOrEmpty(block.Image))
+        { 
+            var blockImageUrl = $"http://localhost:5189{block.Image}";
+            <img src="@blockImageUrl" alt="@block.Title"
+                 class="img-fluid rounded mb-2" />
+        }
+        @if (!string.IsNullOrEmpty(block.Link))
+        {
+            <a href="@block.Link" class="btn btn-outline-primary btn-sm">@block.Link</a>
         }
     </div>
 }
@@ -25,4 +38,7 @@
 
     [Parameter] 
     public List<ContentBlockModel> Blocks { get; set; } = new();
+    
+    [Parameter] 
+    public string Section { get; set; } = "main";
 }

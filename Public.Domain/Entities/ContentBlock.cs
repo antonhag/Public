@@ -16,8 +16,7 @@ public class ContentBlock
     public string Section { get; set; } = "main";
     public int Order { get; set; }
 
-    [Required]
-    public string CssStyle { get; set; } = null!;
+    public string? CssStyle { get; set; }
 
     public Page Page { get; set; } = null!;
 }
