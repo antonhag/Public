@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Public.API.Data;
 using Public.Application.Interfaces;
 using Public.Application.Services;
 using Public.Domain.Interfaces;
@@ -19,16 +20,24 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 builder.Services.AddScoped<IPageRepository, PageRepository>();                             
 builder.Services.AddScoped<IContentBlockRepository, ContentBlockRepository>();             
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
-builder.Services.AddScoped<IVisitRepository, VisitRepository>();   
+builder.Services.AddScoped<IVisitRepository, VisitRepository>();
+builder.Services.AddScoped<ISiteStyleRepository, SiteStyleRepository>();
 
 builder.Services.AddScoped<IPageService, PageService>();
-builder.Services.AddScoped<IContentBlockService, ContentBlockService>();                   
+builder.Services.AddScoped<IContentBlockService, ContentBlockService>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
+builder.Services.AddScoped<ISiteStyleService, SiteStyleService>();
 
 
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    await SiteStyleSeeder.SeedDefaultStyleAsync(scope.ServiceProvider);
+}
+
 
 // Så att filerna kan nås via URL, bilderna tex
 app.UseStaticFiles();

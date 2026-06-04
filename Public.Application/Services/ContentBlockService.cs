@@ -28,8 +28,7 @@ public class ContentBlockService : IContentBlockService
             Link = b.Link,
             PageId = b.PageId,
             Section = b.Section,
-            Order = b.Order,
-            CssStyle = b.CssStyle
+            Order = b.Order
         }).ToList();
     }
 
@@ -45,8 +44,7 @@ public class ContentBlockService : IContentBlockService
             Link = b.Link,
             PageId = b.PageId,
             Section = b.Section,
-            Order = b.Order,
-            CssStyle = b.CssStyle
+            Order = b.Order
         }).ToList();
     }
 
@@ -66,8 +64,7 @@ public class ContentBlockService : IContentBlockService
             Link = block.Link,
             PageId = block.PageId,
             Section = block.Section,
-            Order = block.Order,
-            CssStyle = block.CssStyle
+            Order = block.Order
         };
     }
 
@@ -86,8 +83,7 @@ public class ContentBlockService : IContentBlockService
             Link = dto.Link,
             PageId = dto.PageId,
             Section = dto.Section,
-            Order = dto.Order,
-            CssStyle = dto.CssStyle
+            Order = dto.Order
         };
         await _contentBlockRepository.CreateContentBlockAsync(block);
     }
@@ -106,7 +102,6 @@ public class ContentBlockService : IContentBlockService
         block.PageId = dto.PageId;
         block.Section = dto.Section;
         block.Order = dto.Order;
-        block.CssStyle = dto.CssStyle;
         await _contentBlockRepository.UpdateContentBlockAsync(block);
     }
 

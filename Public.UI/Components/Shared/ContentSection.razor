@@ -1,7 +1,7 @@
 
 @foreach (var block in Blocks.OrderBy(b => b.Order))
 {
-    <div class="content-block mb-4" style="@block.CssStyle">
+    <div class="content-block mb-4">
         @if (!string.IsNullOrEmpty(block.Title))
         {
             @if (Section == "sidebar")

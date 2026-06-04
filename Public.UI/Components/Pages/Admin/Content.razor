@@ -50,11 +50,7 @@
     <label>Ordning</label>
     <br>
     <InputNumber @bind-Value="newContent.Order"></InputNumber>
-    <br>
-    <label>CSS-stil</label>
-    <br>
-    <InputText @bind-Value="newContent.CssStyle"></InputText>
-    
+
     <button type="submit">Skapa</button>
 </EditForm>
 
@@ -78,7 +74,6 @@ else
             <th>Länk</th>
             <th>Sektion</th>
             <th>Ordning</th>
-            <th>CSS-stil</th>
             <th>Åtgärder</th>
         </tr>
         </thead>
@@ -102,7 +97,6 @@ else
                         </select>                                                                              
                     </td>  
                     <td><input type="number" @bind="editContent.Order" /></td>
-                    <td><input @bind="editContent.CssStyle" /></td>
                     <td>
                         <button type="button" @onclick="SaveEditAsync">Spara</button>
                         <button type="button" @onclick="CancelEdit">Avbryt</button>
@@ -119,7 +113,6 @@ else
                     <td>@content.Link</td>
                     <td>@content.Section</td>
                     <td>@content.Order</td>
-                    <td>@content.CssStyle</td>
                     <td>
                         <button type="button" @onclick="() => StartEdit(content)">Redigera</button>
                         <button type="button" @onclick="() => DeleteContentAsync(content.Id)">Ta bort</button>
@@ -212,7 +205,6 @@ else
         editContent.Link = content.Link;
         editContent.Section = content.Section;
         editContent.Order = content.Order;
-        editContent.CssStyle = content.CssStyle;
     }
 
     private void CancelEdit()
