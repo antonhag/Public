@@ -2,6 +2,9 @@
 @page "/{url}"
 @layout PublicLayout
 @inject IHttpClientFactory HttpClientFactory
+
+@* Använd för att hämta API:ts URL från appsettings.json, eftersom bilderna ligger på API-servern *@
+@inject IConfiguration Config 
 @* Prerendering avstängd för att undvika dubbel besöksregistrering *@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
@@ -16,7 +19,7 @@ else
     {
         @* Hämtar första hero-blocket för den sidan, brukar bara ha en hero. *@
         var hero = heroBlocks.First();
-        var heroImageUrl = $"http://localhost:5189{hero.Image}";
+        var heroImageUrl = $"{Config["ApiUrl"]}{hero.Image}";
         <div class="row mb-4">
             <div class="col-12">
                 <div class="p-5 rounded-3 text-white"

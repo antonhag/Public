@@ -29,6 +29,18 @@ builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<ISiteStyleService, SiteStyleService>();
 
+// CORS: tillåt UI (både lokalt och Azure) att anropa API:t
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:5048",
+                "https://anton-public-ui.azurewebsites.net")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 
 var app = builder.Build();
@@ -50,6 +62,8 @@ if (app.Environment.IsDevelopment())
 }  
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 

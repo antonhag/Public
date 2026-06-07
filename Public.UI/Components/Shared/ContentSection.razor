@@ -1,3 +1,5 @@
+@* Använd för att hämta API:ts URL från appsettings.json, eftersom bilderna ligger på API-servern *@
+@inject IConfiguration Config 
 
 @foreach (var block in Blocks.OrderBy(b => b.Order))
 {
@@ -23,7 +25,7 @@
         }
         @if (!string.IsNullOrEmpty(block.Image))
         { 
-            var blockImageUrl = $"http://localhost:5189{block.Image}";
+            var blockImageUrl = $"{Config["ApiUrl"]}{block.Image}";
             <img src="@blockImageUrl" alt="@block.Title"
                  class="img-fluid rounded mb-2" />
         }

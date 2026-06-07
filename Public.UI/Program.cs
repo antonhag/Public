@@ -15,10 +15,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MyConnectionString")));
 
-// HttpClient som pratar med API:t
+
 builder.Services.AddHttpClient("Api", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5189");
+    client.BaseAddress = new Uri(builder.Configuration["ApiUrl"]!);
 });
 
 builder.Services.AddCascadingAuthenticationState();
