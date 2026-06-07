@@ -58,4 +58,14 @@ public class SiteStyleRepository : ISiteStyleRepository
         }
         await _context.SaveChangesAsync();
     }
+
+    public async Task DeactivateAllSiteStylesAsync()
+    {
+        var all = await _context.SiteStyles.ToListAsync();
+        foreach (var s in all)
+        {
+            s.IsActive = false;
+        }
+        await _context.SaveChangesAsync();
+    }
 }

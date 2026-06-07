@@ -11,4 +11,5 @@ public interface ISiteStyleService
     Task UpdateSiteStyleAsync(int id, UpdateSiteStyleDto dto);
     Task DeleteSiteStyleAsync(int id);
     Task SetActiveSiteStyleAsync(int id);
+    Task DeactivateAllSiteStylesAsync();
 }

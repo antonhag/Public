@@ -56,4 +56,10 @@ public class SiteStylesController : ControllerBase
     {
         await _siteStyleService.DeleteSiteStyleAsync(id);
     }
+
+    [HttpPost("reset")]
+    public async Task Reset()
+    {
+        await _siteStyleService.DeactivateAllSiteStylesAsync();
+    }
 }

@@ -142,4 +142,9 @@ public class SiteStyleService : ISiteStyleService
         }
         await _siteStyleRepository.SetActiveSiteStyleAsync(id);
     }
+
+    public async Task DeactivateAllSiteStylesAsync()
+    {
+        await _siteStyleRepository.DeactivateAllSiteStylesAsync();
+    }
 }

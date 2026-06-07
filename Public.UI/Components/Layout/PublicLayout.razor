@@ -1,5 +1,37 @@
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
+@inject IHttpClientFactory HttpFactory
+
+@if (activeStyle != null)
+{
+    <style>
+          h1, h2, h3, h4, h5, h6 {
+              color: @activeStyle.HeadingColor;
+              font-family: @activeStyle.HeadingFont;
+          }
+          h1 { font-size: @(activeStyle.HeadingSize)px; }
+          h2 { font-size: @(activeStyle.HeadingSize - 4)px; }
+          h3 { font-size: @(activeStyle.HeadingSize - 8)px; }
+
+          main p, main .content-block {
+              color: @activeStyle.TextColor;
+              font-family: @activeStyle.TextFont;
+              font-size: @(activeStyle.TextSize)px;
+          }
+
+          main img {
+              border-radius: @(activeStyle.ImageBorderRadius)px;
+              border: 1px solid @activeStyle.ImageBorderColor;
+          }
+
+          main a {
+              color: @activeStyle.LinkColor;
+              text-decoration: @(activeStyle.LinkUnderline ?
+                                   "underline" : "none");
+          }
+      </style>
+}
+
 
 <style>
     .nav-link:hover {
@@ -78,13 +110,13 @@
 
 @code {
     private List<MenuItemModel>? menuItems;
-
-    [Inject] IHttpClientFactory HttpFactory { get; set; } = default!;
-
+    private SiteStyleModel? activeStyle;
+    
     protected override async Task OnInitializedAsync()
     {
         var client = HttpFactory.CreateClient("Api");
         menuItems = await client.GetFromJsonAsync<List<MenuItemModel>>("api/menuitems");
+        activeStyle = await client.GetFromJsonAsync<SiteStyleModel>("api/sitestyles/active");
     }
 }
 

@@ -1,0 +1,222 @@
+@page "/admin/styles"
+@layout AdminLayout
+@attribute [Authorize(Roles = "Admin")]
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Hantera utseende</h3>
+    <button class="btn btn-warning" @onclick="ResetAsync">Återställ till Lux-tema</button>
+</div>
+
+@* Lista över alla teman *@
+@if (styles == null)
+{
+    <p>Laddar...</p>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Sparade teman</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>Aktiv</th>
+                    <th>Namn</th>
+                    <th>Åtgärder</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var s in styles)
+                {
+                    <tr>
+                        <td>@(s.IsActive ? "🟢" : "")</td>
+                        <td>@s.Name</td>
+                        <td>
+                            <button class="btn btn-sm btn-success" @onclick="() => ActivateAsync(s.Id)" disabled="@s.IsActive">Aktivera</button>
+                            <button class="btn btn-sm btn-warning" @onclick="() => StartEdit(s)">Redigera</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAsync(s.Id)" disabled="@s.IsActive">Ta bort</button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@* Form för Create/Edit *@
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">@(editingId == null ? "Skapa nytt tema" : "Redigera tema")</h5>
+    </div>
+    <div class="card-body">
+        <EditForm Model="form" OnValidSubmit="SaveAsync">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+
+            <div class="mb-3">
+                <label class="form-label">Namn</label>
+                <InputText @bind-Value="form.Name" class="form-control"/>
+            </div>
+
+            <h6 class="mt-4">Rubrik</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Färg</label>
+                    <InputText type="color" @bind-Value="form.HeadingColor" class="form-control form-control-color"/>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Font</label>
+                    <InputSelect @bind-Value="form.HeadingFont" class="form-select">
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Verdana">Verdana</option>
+                    </InputSelect>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Storlek (px)</label>
+                    <InputNumber @bind-Value="form.HeadingSize" class="form-control"/>
+                </div>
+            </div>
+
+            <h6>Text</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Färg</label>
+                    <InputText type="color" @bind-Value="form.TextColor" class="form-control form-control-color"/>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Font</label>
+                    <InputSelect @bind-Value="form.TextFont" class="form-select">
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Verdana">Verdana</option>
+                    </InputSelect>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Storlek (px)</label>
+                    <InputNumber @bind-Value="form.TextSize" class="form-control"/>
+                </div>
+            </div>
+
+            <h6>Bild</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Border-radius (px)</label>
+                    <InputNumber @bind-Value="form.ImageBorderRadius" class="form-control"/>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Border-färg</label>
+                    <InputText type="color" @bind-Value="form.ImageBorderColor" class="form-control form-control-color"/>
+                </div>
+            </div>
+
+            <h6>Länk</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Färg</label>
+                    <InputText type="color" @bind-Value="form.LinkColor" class="form-control form-control-color"/>
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        <InputCheckbox @bind-Value="form.LinkUnderline" class="form-check-input" id="underline"/>
+                        <label class="form-check-label" for="underline">Understruken</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Spara</button>
+            @if (editingId != null)
+            {
+                <button type="button" class="btn btn-secondary ms-2" @onclick="CancelEdit">Avbryt</button>
+            }
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private HttpClient client = default!;
+    private List<SiteStyleModel>? styles;
+    private CreateSiteStyleModel form = new();
+    private int? editingId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = HttpClientFactory.CreateClient("Api");
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        styles = await client.GetFromJsonAsync<List<SiteStyleModel>>("api/sitestyles");
+    }
+
+    private async Task SaveAsync()
+    {
+        if (editingId == null)
+        {
+            await client.PostAsJsonAsync("api/sitestyles", form);
+        }
+        else
+        {
+            await client.PutAsJsonAsync($"api/sitestyles/{editingId}", form);
+        }
+        form = new CreateSiteStyleModel();
+        editingId = null;
+        await LoadAsync();
+    }
+
+    private void StartEdit(SiteStyleModel s)
+    {
+        editingId = s.Id;
+        form = new CreateSiteStyleModel
+        {
+            Name = s.Name,
+            HeadingColor = s.HeadingColor,
+            HeadingFont = s.HeadingFont,
+            HeadingSize = s.HeadingSize,
+            TextColor = s.TextColor,
+            TextFont = s.TextFont,
+            TextSize = s.TextSize,
+            ImageBorderRadius = s.ImageBorderRadius,
+            ImageBorderColor = s.ImageBorderColor,
+            LinkColor = s.LinkColor,
+            LinkUnderline = s.LinkUnderline
+        };
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+        form = new CreateSiteStyleModel();
+    }
+
+    private async Task ActivateAsync(int id)
+    {
+        await client.PostAsync($"api/sitestyles/{id}/activate", null);
+        await LoadAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await client.DeleteAsync($"api/sitestyles/{id}");
+        await LoadAsync();
+    }
+
+    private async Task ResetAsync()
+    {
+        await client.PostAsync("api/sitestyles/reset", null);
+        await LoadAsync();
+    }
+
+}
