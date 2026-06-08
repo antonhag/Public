@@ -1,40 +1,43 @@
 @* Använd för att hämta API:ts URL från appsettings.json, eftersom bilderna ligger på API-servern *@
 @inject IConfiguration Config 
 
-@foreach (var block in Blocks.OrderBy(b => b.Order))
-{
-    <div class="content-block mb-4">
-        @if (!string.IsNullOrEmpty(block.Title))
-        {
-            @if (Section == "sidebar")
+<div class="@(Section == "footer" ? "d-flex gap-4 flex-wrap" : "")">
+    @foreach (var block in Blocks.OrderBy(b => b.Order))
+    {
+        <div class="content-block mb-4 @(Section == "footer" ? "flex-fill" : "") @(Section == "sidebar" ? "card shadow-sm p-3" : "")">
+            @if (!string.IsNullOrEmpty(block.Title))
             {
-                <h4>@block.Title</h4>
+                @if (Section == "sidebar")
+                {
+                    <h4>@block.Title</h4>
+                }
+                else if (Section == "footer")
+                {
+                    <h5>@block.Title</h5>
+                }
+                else // för mainBlocks
+                {
+                    <h2>@block.Title</h2>
+                }
             }
-            else if (Section == "footer")
+            @if (!string.IsNullOrEmpty(block.Text))
             {
-                <h5>@block.Title</h5>
+                <p>@block.Text</p>
             }
-            else // för mainBlocks
+            @if (!string.IsNullOrEmpty(block.Image))
             {
-                <h2>@block.Title</h2>
+                var blockImageUrl = $"{Config["ApiUrl"]}{block.Image}";
+                <img src="@blockImageUrl" alt="@block.Title"
+                     class="img-fluid rounded mb-2"
+                     style="@(Section == "sidebar" ? "max-height: 250px; width: auto; display: block; margin: 0 auto;" : "")" />
             }
-        }
-        @if (!string.IsNullOrEmpty(block.Text))
-        {
-            <p>@block.Text</p>
-        }
-        @if (!string.IsNullOrEmpty(block.Image))
-        { 
-            var blockImageUrl = $"{Config["ApiUrl"]}{block.Image}";
-            <img src="@blockImageUrl" alt="@block.Title"
-                 class="img-fluid rounded mb-2" />
-        }
-        @if (!string.IsNullOrEmpty(block.Link))
-        {
-            <a href="@block.Link" class="btn btn-outline-primary btn-sm">@block.Link</a>
-        }
-    </div>
-}
+            @if (!string.IsNullOrEmpty(block.Link))
+            {
+                <a href="@block.Link" class="btn btn-outline-primary btn-sm">@block.Link</a>
+            }
+        </div>
+    }
+</div>
 
 @code {
 
