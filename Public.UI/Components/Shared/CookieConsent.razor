@@ -1,0 +1,53 @@
+@inject IJSRuntime JS
+@rendermode InteractiveServer 
+
+@* initialized med för att slippa att det blinkar till för redan accepterade användare *@
+@if (initialized &&!hasResponded)
+{
+
+    <div class="position-fixed top-0 start-0 w-100 h-100 bg-black bg-opacity-50 d-flex 
+  justify-content-center align-items-center" style="z-index:1050;">
+        <div class="card shadow-lg" style="max-width:500px;">
+            <div class="card-body">
+                <h5 class="card-title">Cookies</h5>
+                <p class="card-text">Vi använder nödvändiga cookies för att webbplatsen ska fungera, samt cookies för att komma
+                    ihåg ditt samtycke. Inga cookies används för spårning eller marknadsföring.</p>
+                
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary" @onclick="Accept">Acceptera</button>
+                    <button class="btn btn-outline-secondary" @onclick="Decline">Neka</button>
+                </div>
+            </div>
+        </div>
+    </div>  
+}
+
+@code {
+    private bool hasResponded;
+    private bool initialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            hasResponded = await JS.InvokeAsync<bool>("cookieConsent.get");
+            initialized = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Accept()
+    {
+        await JS.InvokeVoidAsync("cookieConsent.accept");
+        hasResponded = true;
+        StateHasChanged();
+    }
+
+    private async Task Decline()
+    {
+        await JS.InvokeVoidAsync("cookieConsent.decline");
+        hasResponded = true;
+        StateHasChanged();
+    }
+
+}
