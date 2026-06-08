@@ -4,55 +4,75 @@
 @inject IHttpClientFactory HttpClientFactory
 @rendermode InteractiveServer
 
-<h3>Hantera innehåll</h3>
+<h3 class="mb-4">Hantera innehåll</h3>
 
-<EditForm Model="newContent" OnValidSubmit="CreateContentAsync" FormName="CreateContent">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <label>Välj sida</label>
-    <br>
-    <InputSelect @bind-Value="newContent.PageId">
-        <option value="0">-- Välj sida --</option>
-        @if (pages != null)
-        {
-            @foreach (var p in pages)
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">@(editingId == null ? "Skapa nytt innehåll" : "Redigera innehåll")</h5> @* Dynamisk text beroende på skapa/redigera *@
+    </div>
+    <div class="card-body">
+        <EditForm Model="newContent" OnValidSubmit="CreateContentAsync" FormName="CreateContent">
+            <DataAnnotationsValidator/>
+            <ValidationSummary class="text-danger"/>
+
+            <div class="mb-3">
+                <label class="form-label">Välj sida</label>
+                <InputSelect @bind-Value="newContent.PageId" class="form-select">
+                    <option value="0">-- Välj sida --</option>
+                    @if (pages != null)
+                    {
+                        @foreach (var p in pages)
+                        {
+                            <option value="@p.Id">@p.Title</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Rubrik</label>
+                <InputText @bind-Value="newContent.Title" class="form-control"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Text</label>
+                <InputTextArea @bind-Value="newContent.Text" class="form-control" rows="3"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Bild</label>
+                <InputFile OnChange="OnFileSelected" class="form-control"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Länk</label>
+                <InputText @bind-Value="newContent.Link" class="form-control"/>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Sektion</label>
+                    <InputSelect @bind-Value="newContent.Section" class="form-select">
+                        <option value="hero">Hero</option>
+                        <option value="main">Main</option>
+                        <option value="sidebar">Sidebar</option>
+                        <option value="footer">Footer</option>
+                    </InputSelect>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ordning</label>
+                    <InputNumber @bind-Value="newContent.Order" class="form-control"/>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">@(editingId == null ? "Skapa" : "Spara")</button> @* Dynamisk knapp beroende på skapa/redigera *@
+            @if (editingId != null)
             {
-                <option value="@p.Id">@p.Title</option>
+                <button type="button" class="btn btn-danger ms-2" @onclick="CancelEdit">Avbryt</button>
             }
-        }
-    </InputSelect>
-    <br>
-    <label>Rubrik</label>
-    <br>
-    <InputText @bind-Value="newContent.Title" />
-    <br>
-    <label>Text</label>
-    <br>
-    <InputTextArea @bind-Value="newContent.Text"/>
-    <br>
-    <label>Bild</label>
-    <br>
-    <InputFile OnChange="OnFileSelected"/>
-    <br>
-    <label>Länk</label>
-    <br>
-    <InputText @bind-Value="newContent.Link"/>
-    <br>
-    <label>Sektion</label>
-    <br>
-    <InputSelect @bind-Value="newContent.Section">
-        <option value="hero">Hero</option>
-        <option value="main">Main</option>
-        <option value="sidebar">Sidebar</option>
-        <option value="footer">Footer</option>
-    </InputSelect>
-    <br>
-    <label>Ordning</label>
-    <br>
-    <InputNumber @bind-Value="newContent.Order"></InputNumber>
-
-    <button type="submit">Skapa</button>
-</EditForm>
+        </EditForm>
+    </div>
+</div>
 
 @if (contentBlocks == null)
 {
@@ -64,64 +84,49 @@ else if (contentBlocks.Count == 0)
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Sida</th>
-            <th>Rubrik</th>
-            <th>Text</th>
-            <th>Bild</th>
-            <th>Länk</th>
-            <th>Sektion</th>
-            <th>Ordning</th>
-            <th>Åtgärder</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var content in contentBlocks)
-        {
-            @if (content.Id == editingId)
-            {
-                <tr>
-                    <td><input @bind="editContent.PageId" /></td>
-                    <td><input @bind="editContent.Title"/></td>
-                    <td><input @bind="editContent.Text"/></td>
-                    <td><InputFile OnChange="OnEditFileSelected" /></td>
-                    <td><input @bind="editContent.Link"/></td>
-                    <td>                                        
-                        <select @bind="editContent.Section">     
-                            <option value="hero">Hero</option>
-                            <option value="main">Main</option>                                                 
-                            <option value="sidebar">Sidebar</option>                                           
-                            <option value="footer">Footer</option>                                             
-                        </select>                                                                              
-                    </td>  
-                    <td><input type="number" @bind="editContent.Order" /></td>
-                    <td>
-                        <button type="button" @onclick="SaveEditAsync">Spara</button>
-                        <button type="button" @onclick="CancelEdit">Avbryt</button>
-                    </td>
-                </tr>
-            }
-            else
-            {
-                <tr>
-                    <td>@(pages?.FirstOrDefault(p => p.Id == content.PageId)?.Title)</td>  
-                    <td>@content.Title</td>
-                    <td>@content.Text</td>
-                    <td>@content.Image</td>
-                    <td>@content.Link</td>
-                    <td>@content.Section</td>
-                    <td>@content.Order</td>
-                    <td>
-                        <button type="button" @onclick="() => StartEdit(content)">Redigera</button>
-                        <button type="button" @onclick="() => DeleteContentAsync(content.Id)">Ta bort</button>
-                    </td>
-                </tr>
-            }
-        }
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Befintligt innehåll</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Sida</th>
+                        <th>Rubrik</th>
+                        <th>Text</th>
+                        <th>Bild</th>
+                        <th>Länk</th>
+                        <th>Sektion</th>
+                        <th>Ordning</th>
+                        <th>Åtgärder</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var content in contentBlocks)
+                    {
+                        <tr>
+                            <td>@(pages?.FirstOrDefault(p => p.Id == content.PageId)?.Title)</td>
+                            <td>@content.Title</td>
+                            <td>@content.Text</td>
+                            <td>@content.Image</td>
+                            <td>@content.Link</td>
+                            <td>@content.Section</td>
+                            <td>@content.Order</td>
+                            <td>
+                                <div class="d-grid gap-1">
+                                    <button type="button" class="btn btn-warning btn-sm" @onclick="() => StartEdit(content)">Redigera</button>
+                                    <button type="button" class="btn btn-danger btn-sm" @onclick="() => DeleteContentAsync(content.Id)">Ta bort</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
@@ -135,7 +140,6 @@ else
     private CreateContentBlockModel? newContent { get; set; } = new();
 
     private int? editingId;
-    private UpdateContentBlockModel editContent = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -151,19 +155,17 @@ else
 
     private async Task CreateContentAsync()
     {
-        Console.WriteLine(">>> CreateContentAsync STARTADE");
-        Console.WriteLine($">>> Title: {newContent?.Title}, PageId:{newContent?.PageId}, Section: {newContent?.Section}");
-
-        var response = await
-            client.PostAsJsonAsync("api/contentblocks", newContent);
-        Console.WriteLine($">>> POST Status: {response.StatusCode}");
-        if (!response.IsSuccessStatusCode)
+        if (editingId == null)
         {
-            var error = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($">>> Error body: {error}");
+            await client.PostAsJsonAsync("api/contentblocks", newContent);
         }
-
+        else
+        {
+            await client.PutAsJsonAsync($"api/contentblocks/{editingId}", newContent);
+        }
+        // nollställer formuläret
         newContent = new CreateContentBlockModel();
+        editingId = null;
         await LoadContentAsync();
     }
 
@@ -184,39 +186,25 @@ else
         var response = await client.PostAsync("api/upload", content); // Skickar paketet till upload-endpointen
         newContent.Image = await response.Content.ReadAsStringAsync(); // Läser sökvägen som API:t returnerar och sparar den i modellen
     }
-
-    private async Task OnEditFileSelected(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-        var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)), "file", file.Name);
-
-        var response = await client.PostAsync("api/upload", content);
-        editContent.Image = await response.Content.ReadAsStringAsync();
-    }     
     
     private void StartEdit(ContentBlockModel content)      
     {                                                                                          
         editingId = content.Id;
-        editContent.PageId = content.PageId;
-        editContent.Title = content.Title;
-        editContent.Text = content.Text;
-        editContent.Image = content.Image;
-        editContent.Link = content.Link;
-        editContent.Section = content.Section;
-        editContent.Order = content.Order;
+        newContent = new CreateContentBlockModel
+        {
+            PageId = content.PageId,
+            Title = content.Title,
+            Text = content.Text,
+            Image = content.Image,
+            Link = content.Link,
+            Section = content.Section,
+            Order = content.Order             
+        };
     }
 
     private void CancelEdit()
     {
         editingId = null;
+        newContent = new CreateContentBlockModel();
     }
-
-    private async Task SaveEditAsync()
-    {
-        await client.PutAsJsonAsync($"api/contentblocks/{editingId}", editContent);
-        editingId = null;
-        await LoadContentAsync();
-    }
-
 }

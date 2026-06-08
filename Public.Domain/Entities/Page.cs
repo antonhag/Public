@@ -14,6 +14,7 @@ public class Page
     [MaxLength(300)]
     public string Url { get; set; } = null!;
     public bool IsPublished { get; set; }
+    public bool IsHomepage { get; set; }
     public DateTime CreatedAt { get; set; }
 
     public List<ContentBlock> ContentBlocks { get; set; } = new List<ContentBlock>();

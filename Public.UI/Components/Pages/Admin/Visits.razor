@@ -16,23 +16,32 @@ else if (visits.Count == 0)
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Sida</th>
-                <th>Antal besök</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var group in visits.GroupBy(v => v.PageId))
-            {
-                <tr>
-                    <td>@(pages?.FirstOrDefault(p => p.Id == group.Key)?.Title)</td>
-                    <td>@group.Count()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Antal besök per sida</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Sida</th>
+                        <th>Antal besök</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var group in visits.GroupBy(v => v.PageId))
+                    {
+                        <tr>
+                            <td>@(pages?.FirstOrDefault(p => p.Id == group.Key)?.Title)</td>
+                            <td>@group.Count()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 }
 
 @code {

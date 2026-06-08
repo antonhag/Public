@@ -35,20 +35,20 @@
 
 <style>
     .nav-link:hover {
-        background-color: #343a40;
+        background-color: var(--bs-warning);
         color: white;
     }
 </style>
 
-<header class="bg-dark text-white py-3">
+<header class="bg-warning text-white py-3">
     <div class="container">
-        <a class="navbar-brand text-white text-decoration-none h4 m-0" href="/">Public</a>
+        <a class="navbar-brand text-white text-decoration-none h4 m-0" href="/">Skrot & Korn</a>
     </div>
 </header>
 
 <nav class="bg-light border-bottom">
-    <div class="container">
-        <ul class="nav d-flex justify-content-between align-items-center w-100">
+    <div class="container-fluid px-4">
+        <ul class="nav d-flex flex-wrap justify-content-between align-items-center w-100">
 
             @* Vänster: menylänkar i en inre ul *@
             <li>
@@ -76,10 +76,10 @@
                         @* Admin-panel knapp, beroende på roll skickas man till olika admin-sidor *@
                         @* Sätter context-namnet till "adminContext" eftersom yttre AuthorizeView redan använder standardnamnet "context", detta för att undvika namnkonflikter*@
                         <AuthorizeView Roles="Admin" Context="adminContext">
-                            <a href="/admin/pages" class="btn btn-outline-dark btn-sm me-3">Admin</a>
+                            <a href="/admin/pages" class="btn btn-outline-warning btn-sm me-3">Admin</a>
                         </AuthorizeView>
                         <AuthorizeView Roles="Editor" Context="editorContext">
-                            <a href="/admin/content" class="btn btn-outline-dark btn-sm me-3">Admin</a>
+                            <a href="/admin/content" class="btn btn-outline-warning btn-sm me-3">Admin</a>
                         </AuthorizeView>
 
                         <form action="Account/Logout" method="post" class="d-inline">
@@ -89,7 +89,7 @@
 
                             @* Dit användaren skickas efter den loggat ut, tom sträng = startsidan *@
                             <input type="hidden" name="ReturnUrl" value=""/>
-                            <button type="submit" class="btn btn-outline-dark btn-sm">Logga ut</button>
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Logga ut</button>
                         </form>
                     </Authorized>
 
@@ -116,7 +116,15 @@
     {
         var client = HttpFactory.CreateClient("Api");
         menuItems = await client.GetFromJsonAsync<List<MenuItemModel>>("api/menuitems");
-        activeStyle = await client.GetFromJsonAsync<SiteStyleModel>("api/sitestyles/active");
+
+        try
+        {
+            activeStyle = await client.GetFromJsonAsync<SiteStyleModel>("api/sitestyles/active");
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            // ifall det inte finns någon aktiv stil, ignorerar det, låt den vara null, då gäller Lux-temat istället
+        }
     }
 }
 

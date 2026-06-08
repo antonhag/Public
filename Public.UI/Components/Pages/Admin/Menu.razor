@@ -6,33 +6,44 @@
 
 <h3>Hantera meny</h3>
 
-<EditForm Model="newMenuItem" OnValidSubmit="CreateMenuItemAsync" FormName="MenuForm"> 
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <label>Välj sida</label>
-    <br>
-    <InputSelect @bind-Value="newMenuItem.PageId">
-        <option value="0">-- Välj sida --</option>
-        @if (pages != null)
-        {
-            @foreach (var p in pages)
-            {
-                <option value="@p.Id">@p.Title</option>
-            }
-        }
-    </InputSelect>
-    <br>    
-    <label>Titel</label>
-    <br>
-    <InputText @bind-Value="newMenuItem.MenuTitle"></InputText>
-    <br>  
-    <label>Meny-ordning</label>
-    <br>
-    <InputNumber @bind-Value="newMenuItem.Order"></InputNumber>
-    <br>    
-    
-    <button type="submit">Skapa</button>
-</EditForm>
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Skapa nytt menyval</h5>
+    </div>
+    <div class="card-body">
+        <EditForm Model="newMenuItem" OnValidSubmit="CreateMenuItemAsync" FormName="MenuForm">
+            <DataAnnotationsValidator/>
+            <ValidationSummary class="text-danger"/>
+            
+            <div class="mb-3">
+                <label class="form-label">Välj sida</label>
+                <InputSelect @bind-Value="newMenuItem.PageId">
+                    <option value="0">-- Välj sida --</option>
+                    @if (pages != null)
+                    {
+                        @foreach (var p in pages)
+                        {
+                            <option value="@p.Id">@p.Title</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Rubrik</label>
+                <InputText @bind-Value="newMenuItem.MenuTitle" class="form-control"/>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Meny-ordning</label>
+                <InputNumber @bind-Value="newMenuItem.Order" class="form-control"></InputNumber>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Skapa</button>
+            
+        </EditForm>
+    </div>
+</div>
 
 @if (menuItems == null)
 {
@@ -44,55 +55,64 @@ else if (menuItems.Count == 0)
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Sida</th>
-            <th>Titel</th>
-            <th>Ordning</th>
-            <th>Åtgärder</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var menu in menuItems)
-        {
-            @if (menu.Id == editingId)
-            {
-                <tr>
-                    <td>
-                        <select @bind="editMenuItem.PageId">
-                            @if (pages != null)
-                            {
-                                @foreach (var p in pages)
-                                {
-                                    <option value="@p.Id">@p.Title</option>
-                                }
-                            }
-                        </select>
-                    </td>
-                    <td><input @bind="editMenuItem.MenuTitle"/></td>
-                    <td><input @bind="editMenuItem.Order"/></td>
-                    <td>
-                        <button type="button" @onclick="SaveEditAsync">Spara</button>
-                        <button type="button" @onclick="CancelEdit">Avbryt</button>
-                    </td>
-                </tr>
-            }
-            else
-            {
-                <tr>
-                    <td>@(pages?.FirstOrDefault(p => p.Id == menu.PageId)?.Title)</td>  
-                    <td>@menu.MenuTitle</td>
-                    <td>@menu.Order</td>
-                    <td>
-                        <button type="button" @onclick="() => StartEdit(menu)">Redigera</button>
-                        <button type="button" @onclick="() => DeleteMenuItemAsync(menu.Id)">Ta bort</button>
-                    </td>
-                </tr>
-            }
-        }
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Menyalternativ</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Sida</th>
+                        <th>Rubrik</th>
+                        <th>Ordning</th>
+                        <th>Åtgärder</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var menu in menuItems)
+                    {
+                        @if (menu.Id == editingId)
+                        {
+                            <tr>
+                                <td>
+                                    <select @bind="editMenuItem.PageId">
+                                        @if (pages != null)
+                                        {
+                                            @foreach (var p in pages)
+                                            {
+                                                <option value="@p.Id">@p.Title</option>
+                                            }
+                                        }
+                                    </select>
+                                </td>
+                                <td><input @bind="editMenuItem.MenuTitle"/></td>
+                                <td><input @bind="editMenuItem.Order"/></td>
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-sm" @onclick="SaveEditAsync">Spara</button>
+                                    <button type="button" class="btn btn-danger btn-sm" @onclick="CancelEdit">Avbryt</button>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>@(pages?.FirstOrDefault(p => p.Id == menu.PageId)?.Title)</td>  
+                                <td>@menu.MenuTitle</td>
+                                <td>@menu.Order</td>
+                                <td>
+                                    <button type="button" class="btn btn-warning btn-sm" @onclick="() => StartEdit(menu)">Redigera</button>
+                                    <button type="button" class="btn btn-danger btn-sm" @onclick="() => DeleteMenuItemAsync(menu.Id)">Ta bort</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 }
 
 @code {

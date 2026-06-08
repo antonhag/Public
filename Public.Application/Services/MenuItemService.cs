@@ -20,7 +20,9 @@ public class MenuItemService : IMenuItemService
     {
         var items = await _menuItemRepository.GetMenuItemsAsync();
         var pages = await _pageRepository.GetPagesAsync();
-        return items.Select(m => new MenuItemDto
+        
+        // sorterar efter Order och behåller bara menyalternativ där sidan är publicerad
+        return items.OrderBy(m => m.Order).Where(m => pages.FirstOrDefault(p => p.Id == m.PageId)?.IsPublished == true).Select(m => new MenuItemDto
         {
             Id = m.Id,
             MenuTitle = m.MenuTitle,

@@ -78,10 +78,12 @@ else
         client = HttpClientFactory.CreateClient("Api");
         pages = await client.GetFromJsonAsync<List<PageModel>>("api/pages");
 
-        // Ingen URL, hämtar alla sidor, ta första som startsida
+        // Ingen URL = startsidan. Ta sidan markerad som hemsida av admin,
+        // fallback till första publicerade om ingen hemsida är vald.
         if (string.IsNullOrEmpty(Url))
         {
-            currentPage = pages?.FirstOrDefault();
+            currentPage = pages?.FirstOrDefault(p => p.IsHomepage && p.IsPublished)
+                ?? pages?.FirstOrDefault(p => p.IsPublished);
         }
         else // Annars hämtar sidan med den angivna URL:en
         {

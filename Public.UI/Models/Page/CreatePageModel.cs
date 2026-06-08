@@ -7,4 +7,5 @@ public class CreatePageModel
     [Required (ErrorMessage = "Titel krävs!")]
     public string Title { get; set; } = null!;
     public bool IsPublished { get; set; }
+    public bool IsHomepage { get; set; }
 }
