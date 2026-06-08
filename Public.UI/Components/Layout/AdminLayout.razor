@@ -9,73 +9,64 @@
 </style>
 
 <header class="bg-dark text-white py-3">
-    <div class="container">
+    <div class="container-fluid px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
         <a class="navbar-brand text-white text-decoration-none h4 m-0" href="/">Skrot & Korn - Admin</a>
+
+        @* Auth-grupp till höger i headern *@
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <AuthorizeView>
+                <Authorized>
+                    <span class="text-white">Hej, @context.User.Identity?.Name!</span>
+
+                    <a href="/" class="btn btn-light btn-sm">Tillbaka till sajten</a>
+
+                    <form action="Account/Logout" method="post" class="d-inline">
+                        @* AntiforgeryToken är ett säkerhetskrav från Identitys logout-endpoint *@
+                        <AntiforgeryToken/>
+                        @* Dit användaren skickas efter den loggat ut, tom sträng = startsidan *@
+                        <input type="hidden" name="ReturnUrl" value=""/>
+                        <button type="submit" class="btn btn-light btn-sm">Logga ut</button>
+                    </form>
+                </Authorized>
+
+                @* Visas endast om användarn ej är inloggad *@
+                <NotAuthorized>
+                    <a class="btn btn-light btn-sm" href="Account/Login">Logga in</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
     </div>
 </header>
 
 <nav class="bg-light border-bottom">
     <div class="container-fluid px-4">
-        <ul class="nav d-flex flex-wrap justify-content-between align-items-center w-100">
-
-            @* Vänster: gruppera alla admin-menylänkar i en inre ul *@
-            <li>
-                <ul class="nav">
-                    <AuthorizeView Roles="Admin,Editor">
-                        <Authorized>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/content">Hantera innehåll</a>
-                            </li>
-                        </Authorized>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Admin">
-                        <Authorized>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/pages">Hantera sidor</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/menu">Hantera meny</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/styles">Hantera utseende</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/visits">Statistik</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/users">Hantera användare</a>
-                            </li>
-                        </Authorized>
-                    </AuthorizeView>
-                </ul>
-            </li>
-
-            @* Höger: login/logout beroende på inloggstatus *@
-            <li>
-
-                @* Visas endast om användaren är inloggad *@
-                <AuthorizeView>
-                    <Authorized>
-                        <span class="me-3">Hej, @context.User.Identity?.Name!</span>
-
-                        <a href="/" class="btn btn-outline-dark btn-sm">Tillbaka till sajten</a>
-                        <form action="Account/Logout" method="post" class="d-inline">
-
-                            @* AntiforgeryToken är ett säkerhetskrav från Identitys logout-endpoint *@
-                            <AntiforgeryToken/>
-
-                            @* Dit användaren skickas efter den loggat ut, tom sträng = startsidan *@
-                            <input type="hidden" name="ReturnUrl" value=""/>
-                            <button type="submit" class="btn btn-outline-dark btn-sm">Logga ut</button>
-                        </form>
-                    </Authorized>
-
-                    @* Visas endast om användarn ej är inloggad *@
-                    <NotAuthorized>
-                        <a class="btn btn-outline-dark btn-sm" href="Account/Login">Logga in</a>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </li>
+        <ul class="nav flex-column flex-md-row">
+            <AuthorizeView Roles="Admin,Editor">
+                <Authorized>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/content">Hantera innehåll</a>
+                    </li>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pages">Hantera sidor</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/menu">Hantera meny</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/styles">Hantera utseende</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/visits">Statistik</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">Hantera användare</a>
+                    </li>
+                </Authorized>
+            </AuthorizeView>
         </ul>
     </div>
 </nav>
