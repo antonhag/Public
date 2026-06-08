@@ -9,6 +9,7 @@ public class UserSeeder
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
         var adminEmail = "admin@test.se";
+        var firstName = "Anton";
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
         if (adminUser == null)
@@ -17,7 +18,8 @@ public class UserSeeder
             {
                 UserName = adminEmail,
                 Email = adminEmail,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                FirstName = firstName
             };
             await userManager.CreateAsync(adminUser, "Admin123!");
         }

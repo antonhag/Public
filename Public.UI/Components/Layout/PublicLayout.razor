@@ -1,6 +1,10 @@
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @inject IHttpClientFactory HttpFactory
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Public.Domain.Entities
 
 @if (activeStyle != null)
 {
@@ -46,7 +50,7 @@
         <div class="d-flex flex-wrap gap-2 align-items-center">
             <AuthorizeView>
                 <Authorized>
-                    <span class="text-white">Hej, @context.User.Identity?.Name!</span>
+                    <span class="text-white">Hej, @(firstName ?? context.User.Identity?.Name)!</span>
 
                     @* Admin-panel knapp, beroende på roll skickas man till olika admin-sidor *@
                     @* Sätter context-namnet till "adminContext" eftersom yttre AuthorizeView redan använder standardnamnet "context", detta för att undvika namnkonflikter*@
@@ -96,6 +100,7 @@
 </main>   
 
 @code {
+    private string? firstName;
     private List<MenuItemModel>? menuItems;
     private SiteStyleModel? activeStyle;
     
@@ -111,6 +116,13 @@
         catch (System.Text.Json.JsonException)
         {
             // ifall det inte finns någon aktiv stil, ignorerar det, låt den vara null, då gäller Lux-temat istället
+        }
+        
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated == true)
+        {
+            var user = await UserManager.FindByNameAsync(state.User.Identity.Name!);
+            firstName = user?.FirstName;
         }
     }
 }

@@ -1,5 +1,9 @@
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Public.Domain.Entities
+@inject UserManager<AppUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <style>
     .nav-link:hover {
@@ -16,7 +20,7 @@
         <div class="d-flex flex-wrap gap-2 align-items-center">
             <AuthorizeView>
                 <Authorized>
-                    <span class="text-white">Hej, @context.User.Identity?.Name!</span>
+                    <span class="text-white">Hej, @(firstName ?? context.User.Identity?.Name)!</span>
 
                     <a href="/" class="btn btn-light btn-sm">Tillbaka till sajten</a>
 
@@ -74,3 +78,17 @@
 <main class="container py-4">
     @Body
 </main>
+
+@code {
+    private string? firstName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated == true)
+        {
+            var user = await UserManager.FindByNameAsync(state.User.Identity.Name!);
+            firstName = user?.FirstName;
+        }
+    }
+}

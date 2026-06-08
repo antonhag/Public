@@ -4,5 +4,5 @@ namespace Public.Domain.Entities;
 
 public class AppUser : IdentityUser
 {
-    
+    public string? FirstName { get; set; }
 }
