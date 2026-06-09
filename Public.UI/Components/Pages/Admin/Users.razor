@@ -5,7 +5,9 @@
 @using Microsoft.EntityFrameworkCore
 @inject UserManager<AppUser> UserManager
 @inject RoleManager<IdentityRole> RoleManager
-@rendermode InteractiveServer
+
+@* prerender av eftersom Identity scoped DbContext krockar mellan prerender och interactive render *@
+@rendermode @(new InteractiveServerRenderMode(prerender: false)) 
 
 <h3>Hantera användare</h3>
   
