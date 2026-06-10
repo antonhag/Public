@@ -61,13 +61,14 @@ else
     [Parameter] 
     public string Url { get; set; } = "";
 
+    // default! för att sätta till default värdet och att tysta null-varning
     private HttpClient client = default!;
 
     private List<ContentBlockModel>? contentBlocks;
     private List<PageModel>? pages;
     private PageModel? currentPage;
     
-    // Filtrerar contentBlocks per sektion. Returnerar tom lista om contentBlocks är null.
+    // Computed properties som filtrerar contentBlocks per sektion. Returnerar tom lista om contentBlocks är null med angivna section.
     private List<ContentBlockModel> heroBlocks => contentBlocks?.Where(b => b.Section == "hero").ToList() ?? new();
     private List<ContentBlockModel> mainBlocks => contentBlocks?.Where(b => b.Section == "main").ToList() ?? new();
     private List<ContentBlockModel> sidebarBlocks => contentBlocks?.Where(b => b.Section == "sidebar").ToList() ?? new();
