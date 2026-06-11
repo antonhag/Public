@@ -40,7 +40,6 @@ The UI has no project references to Application or Infrastructure — all data f
 - **Database:** Azure SQL Server
 - **Auth:** ASP.NET Core Identity
 - **Styling:** Bootstrap
-- **Docs:** Swagger
 
 ## 🎯 Features
 
