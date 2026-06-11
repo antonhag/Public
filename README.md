@@ -37,7 +37,7 @@ The UI has no project references to Application or Infrastructure — all data f
 - **Frontend:** Blazor Server
 - **Backend:** ASP.NET Core Web API (REST)
 - **ORM:** Entity Framework Core
-- **Database:** Azure SQL Server
+- **Database:** Azure SQL Database
 - **Auth:** ASP.NET Core Identity
 - **Styling:** Bootstrap
 
@@ -78,6 +78,17 @@ Update the connection string in `Public.API/appsettings.json` and apply migratio
 ```bash
 dotnet ef database update --project Public.Infrastructure --startup-project Public.API
 ```
+
+## 📚 Learning Experience
+
+Through this project I learned how to:
+
+- Structure a large project by using Onion Architecture with clear separation between layers
+- Build a REST API and set it up so the Blazor frontend only communicates with the backend through the API
+- Implement authentication and authorization by using ASP.NET Core Identity
+- Deploy a multi-project .NET solution to Azure App Service with Azure SQL Database, one Azure App Service for the UI and one for the API
+- Create dynamic pages that gather content elements from the database and display them correctly
+
 
 ## 📁 Project Structure
 
