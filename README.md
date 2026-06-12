@@ -32,7 +32,7 @@ The UI has no project references to Application or Infrastructure — all data f
 
 ## 🛠 Tech Stack
 
-- **Framework:** ASP.NET Core 10
+- **Framework:** .NET 10 / ASP.NET Core
 - **Language:** C#
 - **Frontend:** Blazor Server
 - **Backend:** ASP.NET Core Web API (REST)
