@@ -2,8 +2,6 @@
 
 A custom Content Management System built as a school project to demonstrate clean architecture principles in a full-stack .NET application.
 
-**Live demo:** https://anton-public-ui.azurewebsites.net/
-
 ## ✨ Overview
 
 Administrators can manage pages, menus, content blocks and image uploads through an admin interface. Public pages are generated dynamically from the database, with content blocks placed in different sections (main, sidebar, footer).
